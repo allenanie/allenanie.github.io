@@ -29,9 +29,9 @@ In 2017 Summer, I worked with Noah Goodman in [CocoLab](https://cocolab.stanford
 
 In 2017 Winter, I accepted an offer to become a full-time research engineer at Stanford Biomedical Data Science Department in Medical School working with [James Zou](https://sites.google.com/site/jamesyzou/home). James Zou's primary area of focus is mathematical modeling of genetics, but he also worked on NLP fairness and medical AI problems. 
 
-In 2018 Spring, I worked on a medical AI project that learns to automatically infer diagnostic codes in veterinary EHR. I presented this work at WeCNLP Summit later in the Fall.
+In 2018 Spring, I worked on a medical AI project that learns to automatically infer diagnostic codes in veterinary EHR. I presented this work at WeCNLP Summit later in the Fall and is subsequently accepted by npj Digital Medicine.
 
-In 2019, I accepted an offer to become a Stanford CS PhD student focusing on Artificial Intelligence.
+In 2019, I accepted an offer to become a Stanford CS PhD student focusing on Artificial Intelligence. 
 
 I'm constantly working on new projects and seeking to connect with people! Drop me an email if you want to talk about research or academic/industry life!
 

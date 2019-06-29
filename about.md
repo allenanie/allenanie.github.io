@@ -43,7 +43,7 @@ I'm constantly working on new projects and seeking to connect with people! Drop 
 
 ### Publications
 
-- **Learning to Explain: Answering Why-Questions via Rephrasing.**, **Nie, A.**, Bennett, E.D. and Goodman, N.D., 2019. Proceedings of the 1st Workshop NLP for Conversational AI. Florence, Italy. Association for Computational Linguistics.
+- **Learning to Explain: Answering Why-Questions via Rephrasing.**, **Nie, A.**, Bennett, E.D. and Goodman, N.D., 2019. Proceedings of the 1st Workshop NLP for Conversational AI. Florence, Italy. Association for Computational Linguistics. \[[link](https://arxiv.org/pdf/1906.01243.pdf)\]
 - **VetTag: improving automated veterinary diagnosis coding via large-scale language modeling.**, Y. Zhang, **A Nie**, A Zehnder, J Zou., (2019). Nature (npj) Digital Medicine 2, Article: 35. \[[link](https://www.nature.com/articles/s41746-019-0113-1)\] \[[demo](http://anie.me/demo/deepvet)\]
 - **DeepTag: inferring diagnoses from veterinary clinical notes.**, **A Nie**, A Zehnder, RL Page, AL Pineda, MA Rivas, CD Bustamante, J Zou., (2018). Nature (npj) Digital Medicine 1, Article: 60. \[[link](https://www.nature.com/articles/s41746-018-0067-8)\] \[[code](http://github.com/windweller/deeptag)\] \[[demo](http://anie.me/demo/deepvet)\]
 - **DisSent: Sentence Representation Learning from Explicit Discourse Relations**. **Nie, A.**, Bennett, E.D., Goodman, N.D., (2017). Accepted in ACL 2019. \[[link](https://arxiv.org/abs/1710.04334)\] \[[code](https://github.com/windweller/disextract)\]

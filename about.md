@@ -14,14 +14,9 @@ published: true
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/profile_pic.JPG?raw=true" style="width:50%"></p>
 
 
+I am a PhD student in CS at Stanford University. I am a part of Stanford Artificial Intelligence Laboratory (SAIL). Previously, I earned my master of science degree in Symbolic Systems Program at Stanford University as well. My main area of focus is Natural Language Processing, but I work in other areas such as deep reinforcement learning, applied machine learning, information theory as well.
 
-Three Stanford departments I've been affiliated with:
-
-1. Computer Science Department (anie@cs.stanford.edu)
-2. Symbolic Systems Program (anie@stanford.edu)
-3. Department of Biomedical Data Science (BDS)
-
-I earned my master of science degree from Symbolic Systems Program at Stanford University. My main area of focus is Natural Language Processing, but I work in other areas such as deep reinforcement learning, applied machine learning, information theory as well.
+Longer history:
 
 In 2016, I spent my first year working in Andrew Ng's [Stanford Machine Learning Group](https://stanfordmlgroup.github.io/) with Ziang Xie. The project centered around recurrent neural network regularizations and data augmentation. I became affiliated with Computer Science Department and received my CS email address during this time. 
 

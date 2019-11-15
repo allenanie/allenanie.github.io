@@ -1,7 +1,7 @@
 ---
 published: true
 layout: post
-draft: true
+draft: false
 visible: 1
 title: Amortized Rational Speech Act Framework
 ---

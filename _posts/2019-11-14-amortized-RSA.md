@@ -1,6 +1,14 @@
 ---
 published: false
+layout: post
+draft: true
+visible: 0
+title: Amortized Rational Speech Act Framework
 ---
-## A New Post
+## Amortized Rational Speech Act Framework
 
-Enter text in [Markdown](http://daringfireball.net/projects/markdown/). Use the toolbar above, or click the **?** button for formatting help.
+### Short Intro
+
+Rational Speech Act (RSA) framework is a famous Bayesian natural language understanding framework that accurately models various linguistic phenomena such as scalar implicature (i.e., "Some people are good." means "Some but not all people are good."). It can also model the dynamics of a reference game.
+
+Over the years, even though 

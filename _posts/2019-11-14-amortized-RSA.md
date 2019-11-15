@@ -2,7 +2,7 @@
 published: true
 layout: post
 draft: false
-visible: 1
+visible: 0
 title: Amortized Rational Speech Act Framework
 ---
 ## Amortized Rational Speech Act Framework

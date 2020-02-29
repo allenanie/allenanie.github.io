@@ -14,7 +14,7 @@ published: true
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/profile_pic.JPG?raw=true" style="width:50%"></p>
 
 
-I am a PhD student in CS at Stanford University. I am a part of Stanford Artificial Intelligence Laboratory (SAIL). Previously, I earned my master of science degree in Symbolic Systems Program at Stanford University as well. My main area of focus is Natural Language Processing, but I work in other areas such as deep reinforcement learning, applied machine learning, information theory as well.
+I am a PhD student in CS at Stanford University. I am a part of Stanford Artificial Intelligence Laboratory (SAIL). Previously, I earned my master of science degree in Symbolic Systems Program at Stanford University as well. Currently I'm rotating with Chris Piech (Fall 19'), Chris Potts (Winter 20'), and Emma Brunskill (Spring 20').
 
 Longer history:
 

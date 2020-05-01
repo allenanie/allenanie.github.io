@@ -1,6 +1,8 @@
 ---
-published: false
+published: true
+layout: post
+draft: true
+title: "Bayesian Decoding: Build a Image Captioner That Can Answer Questions"
 ---
-## A New Post
+LOL.
 
-Enter text in [Markdown](http://daringfireball.net/projects/markdown/). Use the toolbar above, or click the **?** button for formatting help.

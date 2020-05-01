@@ -5,8 +5,6 @@ draft: false
 visible: 1
 title: A Generative Model of Discourse
 ---
-## A Generative Model of Discourse
-
 ### Short Preface
 
 There has been a lot interests on sentence representation learning, similar to the explosion of word embedding.
@@ -33,7 +31,7 @@ $$
 P(w_i | c) = \frac{\exp(c \cdot v_{w_i})}{Z_c}
 $$
 
-Note that $v_{w_i}​$ indicates the actual vector representation of $w_i​$, and this probability model uses dot-product distance to capture the probability of word $w_i​$ appear in the sequence, normalized by a partition function $Z_c = \sum_w \exp(v_w \cdot c)​$. This dictates that the discourse vector $c​$ will be close to words it produces in vector space.
+Note that $v_{w_i}$ indicates the actual vector representation of $w_i$, and this probability model uses dot-product distance to capture the probability of word $w_i$ appear in the sequence, normalized by a partition function $Z_c = \sum_w \exp(v_w \cdot c)$. This dictates that the discourse vector $c$ will be close to words it produces in vector space.
 
 Based on this very simple model, a very interesting theorem can be proved. Here, I write out the actual proof (with more details than the one provided in the paper, as well as an easy illustration on what's going on).
 
@@ -41,7 +39,7 @@ Theorem 1 of Arora et al. (2018)[^3] paper can be understood by introducing a ve
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/discourse-theorem1-u.jpg?raw=true" style="width:35%"> <br> <b>Figure 2</b> </p>
 
-For this word $w$, it must appear in different spans of words across the entire document. A random variable of a window of $n$ words can be introduced as $s$, a span. Computationally, the vector $u$ for the word $w​$ can be computed as follow:
+For this word $w$, it must appear in different spans of words across the entire document. A random variable of a window of $n$ words can be introduced as $s$, a span. Computationally, the vector $u$ for the word $w$ can be computed as follow:
 
 $$
 u = \frac{1}{k} \sum_{s \in \{s_1, ..., s_k\}} \frac{1}{n} \sum_{w_i \in s} v_{w_i}
@@ -75,11 +73,11 @@ p(c|w) &\propto p(w|c)p(c) \\
 \end{align*}
 $$
 
-After obtaining the probability density function of $c \vert w$, we can think about what kind of random variable this pdf suggests, because eventually we want to know what is $\mathbb{E}(c \vert w)$, the left hand side of equation (1). Since there is a covariance matrix inverse $\Sigma^{-1}$ invovled, we can try to re-arrange the terms to make it look more like a multivariate Gaussian distribution. Since we do want to know $\mathbb{E}(c \vert w)​$, we need to know what is the mean of this new distribution.
+After obtaining the probability density function of $c \vert w$, we can think about what kind of random variable this pdf suggests, because eventually we want to know what is $\mathbb{E}(c \vert w)$, the left hand side of equation (1). Since there is a covariance matrix inverse $\Sigma^{-1}$ invovled, we can try to re-arrange the terms to make it look more like a multivariate Gaussian distribution. Since we do want to know $\mathbb{E}(c \vert w)$, we need to know what is the mean of this new distribution.
 
 First, we ignore the covariance determinant term as it is a constant and in Arora's setting, the covariance matrix is invertible -- "if the word vectors as random variables are isotropic to some extent, it will make the covariance matrix identifiable" (identifiable = invertible). The assumption "isotropic word embedding" here means that word embedding dimensions should not be correlated with each other.
 
-Then, all we need to do is to rearrange the terms in $p(c \vert w)$ to appear in the form of $\exp(-\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu))$. By doing so, we will be able to find our $\mu$, the expectation of this pdf. Since the form $\frac{1}{2} c^T( \Sigma^{-1} + 2I)c$ looks very similar to the quadratic form that we need, we can let $B^{-1} = \Sigma^{-1} + 2I$ and let $B$ be our new covariance matrix for $c \vert w$. We can work out the equations from both sides. We let $\mu​$ be the mean we want and solve for it:
+Then, all we need to do is to rearrange the terms in $p(c \vert w)$ to appear in the form of $\exp(-\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu))$. By doing so, we will be able to find our $\mu$, the expectation of this pdf. Since the form $\frac{1}{2} c^T( \Sigma^{-1} + 2I)c$ looks very similar to the quadratic form that we need, we can let $B^{-1} = \Sigma^{-1} + 2I$ and let $B$ be our new covariance matrix for $c \vert w$. We can work out the equations from both sides. We let $\mu$ be the mean we want and solve for it:
 
 $$
 \begin{align*}
@@ -90,7 +88,7 @@ p(c|w) &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1} + I)c
 \end{align*}
 $$
 
-Now we have two expressions of $p(c \vert w)$. We can match the terms between two equations, one term $c^TB^{-1}c$ already appears in both, but not $-2 v_w \cdot c$. However, there are two terms with negative signs in the top expansion. A trick that applies here is to just make them equal and hope things to work out -- we solve for $\mu​$:
+Now we have two expressions of $p(c \vert w)$. We can match the terms between two equations, one term $c^TB^{-1}c$ already appears in both, but not $-2 v_w \cdot c$. However, there are two terms with negative signs in the top expansion. A trick that applies here is to just make them equal and hope things to work out -- we solve for $\mu$:
 
 $$
 -2 v_w \cdot c = - c^TB^{-1}\mu - \mu^TB^{-1}c \\
@@ -99,9 +97,9 @@ $$
 
 It is somewhat transparent that on the RHS (right hand side), $B$ needs to disappear since the LHS (left hand side) does not contain any $B$. To do that, $\mu$ should at least contain $B$ so that it cancels out with $B^{-1}$. Also the LHS has $v_w$ while RHS has none. Then the answer should be apparent: $\mu = Bv_w$. If you plug this in, the above equality works, shows that this is our $\mu$. 
 
-My stats PhD friend told me, if I saw a pdf in the form of $w^Tx - \frac{1}{2} x^TB^{-1}x​$, then I can actually skip the above algebra and directly "see" this distribution of $x​$ as mean $Bw​$, with variance $B​$. 
+My stats PhD friend told me, if I saw a pdf in the form of $w^Tx - \frac{1}{2} x^TB^{-1}x$, then I can actually skip the above algebra and directly "see" this distribution of $x$ as mean $Bw$, with variance $B$. 
 
-So now, we know that $c \vert w \sim \mathcal{N}(B^{-1}v_w, B)​$ where $B = (\Sigma^{-1} + 2I)^{-1}​$, the posterior distribution of $c​$ after conditioning on a single word in the sequence. Thus  $\mathbb{E}(c \vert w) = (\Sigma^{-1} + 2I)^{-1} v_w​$.
+So now, we know that $c \vert w \sim \mathcal{N}(B^{-1}v_w, B)$ where $B = (\Sigma^{-1} + 2I)^{-1}$, the posterior distribution of $c$ after conditioning on a single word in the sequence. Thus  $\mathbb{E}(c \vert w) = (\Sigma^{-1} + 2I)^{-1} v_w$.
 
 <p>Then we want to get the pdf that describes $c|w_1, ..., w_n​$. This part is relatively straightforward, no algebra trick / insight is required. The work mostly hinges on the following expression: </p>
 
@@ -129,14 +127,14 @@ Therefore, we know that the matrix $A$ that we set out to find is now solvable b
 
 <p>Then we also know that $c \vert w \sim \mathcal{N}(B^{-1}v_w, B)$, and $A =  n B^{-1}B$, if we can somehow estimate $B$, we can also compute $A$. Let's take a closer look at $c \vert w$. The mean of the distribution $B^{-1} v_w$ is word-dependent, but the covariance is not. This means if we want to find this distribution $c|w$ for any word, then we need to: for every word $w$, fit the posterior $c \vert w$ with a multivariate Gaussian distribution, and share the same covariance matrix across all these pdfs. This seems possible but computing matrix inverse: $ B^{-1}$ is expensive ($B$ is a 300 x 300 matrix, for a 300d word vector).</p>
 
-The last choice is to do monte carlo estimation on the Theorem 1's original equation: $v\_w \approx A \mathbb{E}(\frac{1}{n} \sum_{w_i \in s} v\_{w_i} \vert w \in s)​$, replace the expectation with sampling over window $s​$ and sampling over word $w​$, and find $A​$ as a linear regression problem. This is also the method the original paper has chosen.
+The last choice is to do monte carlo estimation on the Theorem 1's original equation: $v\_w \approx A \mathbb{E}(\frac{1}{n} \sum_{w_i \in s} v\_{w_i} \vert w \in s)$, replace the expectation with sampling over window $s$ and sampling over word $w$, and find $A$ as a linear regression problem. This is also the method the original paper has chosen.
 
 If we suppose that $u$ is the averaged discourse vectors for word $w$, then iterating through the vocabulary, we should be able to find matrix $A$ by solving the following optimization:
 $$
 \arg\min_A \sum_w \| A u_w - v_w \|_2^2
 $$
 
-The paper tried to fit GloVe embeddings using linear transformation and use SIF[^5] to generate context vector $c\_w​$. As we can see the practical fit is good in Table 2.
+The paper tried to fit GloVe embeddings using linear transformation and use SIF[^5] to generate context vector $c\_w$. As we can see the practical fit is good in Table 2.
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/discourse-table2.png?raw=true" style="width:50%"> <br> <b>Figure 3</b> </p>
 
@@ -144,15 +142,15 @@ The paper tried to fit GloVe embeddings using linear transformation and use SIF[
 
 Intuitively, Theorem 1 dictates that a word has a **linear relationship** (fulfilled by matrix $A$) to the average of all the context vectors this word appears in: $v\_w = A \sum_s c_s$. This relationship is fully specified by $\Sigma$, the covariance of discourse random vector $c$. Theorem 2 of the paper can be interpreted as: $v\_w \approx \alpha v\_{s\_1} + \beta v\_{s\_2}$, a linear combination of 2 senses (each sense is represented as a vector). We can see the parallel between this linear decomposition and the transformed average of all context that word $w$ appears in. The proof of Theorem 2 essentially expresses that if there are 2 senses for a given word, then with high probability, $\alpha$% of the context vectors should be similar to each other as they are all this word expressed in sense 1, $\beta$% of the context vectors should be similar/grouped together as they are all expressed as sense 2.
 
-Since we do not observe the frequency ($\alpha​$, $\beta​$), nor do we know how many senses are in there, Arora proposed to discover senses using **sparse coding**[^6], finding a set of unit vectors $A\_1, ...,A\_m​$, that for any word $v\_w​$, it can be expressed by a small number of these unit vectors. These unit vectors are referred as the **Atoms of Discourse**.
+Since we do not observe the frequency ($\alpha$, $\beta$), nor do we know how many senses are in there, Arora proposed to discover senses using **sparse coding**[^6], finding a set of unit vectors $A\_1, ...,A\_m$, that for any word $v\_w$, it can be expressed by a small number of these unit vectors. These unit vectors are referred as the **Atoms of Discourse**.
 
-Sparse coding objective and description can be found in the paper, overall, given a set of word vectors, two integers k, m with k << m, find a set of unit vectors $A\_1, ...,A\_m​$ such that:
+Sparse coding objective and description can be found in the paper, overall, given a set of word vectors, two integers k, m with k << m, find a set of unit vectors $A\_1, ...,A\_m$ such that:
 
 $$
 v_w = \sum_{j=1}^m \alpha_{w,j}A_j + \eta_w
 $$
 
-where at most k of the coefficients $\alpha​$ are nonzero.  The goal is to minimize the reconstruction error term $\sum\_w \eta\_w​$.
+where at most k of the coefficients $\alpha$ are nonzero.  The goal is to minimize the reconstruction error term $\sum\_w \eta\_w$.
 
 $$
 \sum_w ||v_w - \sum_{j=1}^m \alpha_{w,j} A_j||_2^2
@@ -164,11 +162,11 @@ Arora et al.'s proof above assumed SIF sentence embeddings. SIF algorithm uses a
 
 We can list out the assumptions used in Arora et al.'s model:
 
-1. $p(w \vert c)​$ is a log-linear model
+1. $p(w \vert c)$ is a log-linear model
 2. Words $w$ in a window are generated independently by $c$.
-3. $p(c)​$, the prior of discourse vector $c​$ is Gaussian with mean 0 and invertible covariance matrix $\Sigma​$.
+3. $p(c)$, the prior of discourse vector $c$ is Gaussian with mean 0 and invertible covariance matrix $\Sigma$.
 
-Each assumption has some flaws. Assumption (1) assumes a very simplistic model on how words are generated from meaning. By extending to a more complex model, such as bilinear transformation: $p(w \vert c) \propto \exp(v\_w^T H c)$, we gain more expressivity and we still have an analytical expression of $c\vert w$, however we might lose the concentration of the partition function $Z\_c​$.
+Each assumption has some flaws. Assumption (1) assumes a very simplistic model on how words are generated from meaning. By extending to a more complex model, such as bilinear transformation: $p(w \vert c) \propto \exp(v\_w^T H c)$, we gain more expressivity and we still have an analytical expression of $c\vert w$, however we might lose the concentration of the partition function $Z\_c$.
 
 Assumption (2) is a very serious offense for syntax in language. Words definitely depend on one another -- grammatical structure naturally emerges from word-to-word dependencies. `The drink is cold`, the choice of `is` is clearly influenced by the plurality of the subject. However, if we drop this assumption, we won't be able to get the following factorization:
 
@@ -218,7 +216,7 @@ On a high-level, Theorem 1 inspires a statistical test: **"can a word be recover
 
 We consider 4 models: BERT, InferSent[^8], DisSent[^13], and SIF (Arora et al.'s original model). We evaluate on News Crawl Shuffled 2011 dataset, which contains roughly 2M sentences from news sources, and is part of the LM1B dataset. BERT uses [SentencePiece](https://github.com/google/sentencepiece)  to tokenize and produces its own subword unit for infrequent words. InferSent, DisSent, and SIF purely relies on GloVe embeddings. Thus, we choose vocabularies that overlap both GloVe and BERT.
 
-Since our testing models are large, we subsample the overlapped vocabulary (12.5%) and construct a training/testing set (1000 words and their corresponding sentence embedding pairs for training, 100 words and their sentence embedding pairs for test) to learn the transformation matrix $A​$. These words jointly appear in >99% of the sentences in the corpus.
+Since our testing models are large, we subsample the overlapped vocabulary (12.5%) and construct a training/testing set (1000 words and their corresponding sentence embedding pairs for training, 100 words and their sentence embedding pairs for test) to learn the transformation matrix $A$. These words jointly appear in >99% of the sentences in the corpus.
 
 For BERT, we select the `[CLS]` token position as the embedding of the sentence because it is trained on the next-sentence prediction task, albeit not fine-tuned on other tasks. 
 

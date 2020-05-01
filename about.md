@@ -14,7 +14,7 @@ published: true
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/profile_pic.JPG?raw=true" style="width:50%"></p>
 
 
-I am a PhD student in CS at Stanford University. I am a part of Stanford Artificial Intelligence Laboratory (SAIL). Previously, I earned my master of science degree in Symbolic Systems Program at Stanford University as well. My main area of focus is Natural Language Processing, but I work in other areas such as deep reinforcement learning, applied machine learning, information theory as well.
+I am a PhD student in CS at Stanford University. I am a part of Stanford Artificial Intelligence Laboratory (SAIL). Previously, I earned my master of science degree in Symbolic Systems Program at Stanford University as well. Currently I'm rotating with Chris Piech (Fall 19'), Chris Potts (Winter 20'), and Emma Brunskill (Spring 20').
 
 Longer history:
 
@@ -38,6 +38,7 @@ I'm constantly working on new projects and seeking to connect with people! Drop 
 
 ### Publications
 
+- **LitGen: Genetic Literature Recommendation Guided by Human Explanations.**, **Nie, A.** et al. Pacific Symposium of Biocomputing (2020): Artificial Intelligence for Enhancing Clinical Medicine Session. \[[link](https://arxiv.org/abs/1909.10699)\] \[[code](https://github.com/windweller/ClinGenML)\]
 - **Learning to Explain: Answering Why-Questions via Rephrasing.**, **Nie, A.**, Bennett, E.D. and Goodman, N.D., 2019. Proceedings of the 1st Workshop NLP for Conversational AI. Florence, Italy. Association for Computational Linguistics. \[[link](https://arxiv.org/pdf/1906.01243.pdf)\]
 - **VetTag: improving automated veterinary diagnosis coding via large-scale language modeling.**, Y. Zhang, **A Nie**, A Zehnder, J Zou., (2019). Nature (npj) Digital Medicine 2, Article: 35. \[[link](https://www.nature.com/articles/s41746-019-0113-1)\] \[[demo](http://anie.me/demo/deepvet)\]
 - **DeepTag: inferring diagnoses from veterinary clinical notes.**, **A Nie**, A Zehnder, RL Page, AL Pineda, MA Rivas, CD Bustamante, J Zou., (2018). Nature (npj) Digital Medicine 1, Article: 60. \[[link](https://www.nature.com/articles/s41746-018-0067-8)\] \[[code](http://github.com/windweller/deeptag)\] \[[demo](http://anie.me/demo/deepvet)\]

@@ -7,6 +7,7 @@
 
 @import "reset";
 @import "variables";
+@import "grid";
 // Syntax highlighting @import is at the bottom of this file
 
 /**************/
@@ -30,7 +31,7 @@ body {
   color: $black;
 }
 
-.container {
+.jekyll-container {
   margin: 0 auto;
   max-width: 740px;
   padding: 0 10px;
@@ -45,13 +46,16 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, Arial, sans-serif;
-  color: $black;
-  // font-weight: bold;
-  font-weight: 400;
+  // font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, Arial, sans-serif;
+  font-family: 'Noto Sans', sans-serif;
+  // color: $black;
+  font-weight: 200;
   line-height: 1.7;
   margin: 1em 0 15px;
   padding: 0;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+  color: #313131;
 
   @include mobile {
     line-height: 1.4;
@@ -60,10 +64,9 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   line-height: 1.4;
-  font-size: 36px;
-  font-weight: 300;
-  letter-spacing: -0.2px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, Arial, sans-serif;
+  font-size: 2.25rem;
+  font-weight: 200;
+  letter-spacing: -0.1px;
 
   a {
     color: inherit;
@@ -105,9 +108,12 @@ p {
 a {
   color: $blue;
   text-decoration: none;
+  
 	cursor: pointer;
   &:hover, &:active {
-    color: $blue;
+    color: #8C1515;
+    transition: color 0.3s ease;
+    // color: $blue;
   }
 }
 
@@ -256,7 +262,7 @@ nav {
   margin-top: 23px; // @TODO: Vertically middle align
 //   font-family: $helveticaNeue;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, Arial, sans-serif;
-  font-size: 18px;
+  font-size: 1.3rem;
 
   @include mobile {
     float: none;
@@ -336,6 +342,38 @@ sup {
 .publication-list {
   padding-bottom: 15px;
   padding-top: 15px;
+}
+
+.portrait {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.portrait-title h3 {
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(0,0,0, 0.54);
+  margin: 0px 0 5px 0;
+}
+
+.portrait-title a {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.about h1 {
+  margin-top: 1rem;
+}
+
+.powered-by {
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: rgba(0,0,0,0.54);
 }
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS

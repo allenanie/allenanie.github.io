@@ -13,7 +13,13 @@ In this post, I will attempt to introduce a method to control neural language ge
 
 But firist, I want to show you the "magic" we can achieve through Bayesian decoding:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/semadv-algorithm1.png?raw=true" style="width:50%"> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/fig5.png?raw=true" style="width:100%"> </p>
+
+We make a 6-layer Transformer architecture (encdoer and decoder) that is trained on MS COCO dataset with SoTA CIDEr score, which has NEVER seen any VQA question/answer before, answer VQA questions in the image captions. The base caption shows what the Transformer originally would have outputted without our method (last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. 
+
+Since image captioner can be considered a very general model learning the association between text and image (grounding text into image scenes), it avoids making potential mistakes VQA model might have made. For example, the fourth image asks "What color is the sky?". A SoTA VQA model will answer "Gray." (If you want to try it -- here's a link to a [live demo](https://vqa.cloudcv.org/)). However, this is neither a very informative nor helpful answer -- in fact, **the sky is not gray** in this picture, it is only gray because it's **a black and white photo of the sky**. Luckily, because an image captioning model has more general-domain knowledge, it picks up on that and spells out the right answer.
+
+This is perhaps the best reason on why we want to repurpose an image captioning model to answer question beyond "just because we can". Imagine if we can train an ultra-large joint text-image model on a generative objective (just like BERT), then we can repurpose such model to answer visual questions. Bayesian decoding to Ultra-large Image Captioner, similar to fine-tuning to BERT, can become the method that pushes the field of NLP forward.
 
 ## A Tutorial of Rational Speech Act for Deep Learning People
 

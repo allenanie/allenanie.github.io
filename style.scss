@@ -376,6 +376,88 @@ sup {
   color: rgba(0,0,0,0.54);
 }
 
+.publication-list li {
+  padding-bottom: 15px;
+}
+
+.publication-list a {
+  color: #8C1515;
+  text-decoration: none;
+  
+	cursor: pointer;
+  &:hover, &:active {
+    text-decoration: underline;
+    // transition: color 0.3s ease;
+    // color: $blue;
+  }
+}
+
+// Simplified button
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.btn-outline-primary {
+  color: #007bff;
+  background-color: transparent;
+  background-image: none;
+  border-color: #007bff;
+}
+
+.btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+  &:hover, &:active {
+    background-color: #8C1515;
+    color: $white;
+    text-decoration: none;
+    // transition: color 0.3s ease;
+    // color: $blue;
+  }
+}
+
+.btn.btn-sm {
+  // padding: .4rem;
+  font-size: .6rem;
+  border-radius: .2rem;
+  
+}
+.btn-outline-primary {
+  border-color: #8C1515;
+  color: #8C1515;
+}
+.btn {
+  padding: .5rem;
+  font-size: .8rem;
+  line-height: .5;
+  border-radius: .3rem;
+}
+
+.btn-group-sm>.btn, .btn-sm {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  border-radius: .2rem;
+}
+
+.publication-list .btn {
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
 @import "highlights";

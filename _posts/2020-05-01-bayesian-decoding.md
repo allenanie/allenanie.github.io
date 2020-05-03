@@ -19,9 +19,23 @@ We make a 6-layer Transformer architecture (encdoer and decoder) that is trained
 
 Since image captioner can be considered a very general model learning the association between text and image (grounding text into image scenes), it avoids making potential mistakes VQA model might have made. For example, the fourth image asks "What color is the sky?". A SoTA VQA model will answer "Gray." (If you want to try it -- here's a link to a [live demo](https://vqa.cloudcv.org/)). However, this is neither a very informative nor helpful answer -- in fact, **the sky is not gray** in this picture, it is only gray because it's **a black and white photo of the sky**. Luckily, because an image captioning model has more general-domain knowledge, it picks up on that and spells out the right answer.
 
-This is perhaps the best reason on why we want to repurpose an image captioning model to answer question beyond "just because we can". Imagine if we can train an ultra-large joint text-image model on a generative objective (just like BERT), then we can repurpose such model to answer visual questions. Bayesian decoding to Ultra-large Image Captioner, similar to fine-tuning to BERT, can become the method that pushes the field of NLP forward.
+This is perhaps the best reason for repurposing an image captioning model to answer question beyond "just because we can". An image captioning model has the chance to fully learn the world and the knowledge within (text and vision). It does not need to live under VQA's data bias where answer is always one or two words. With our method (and some tuning), it can answer any visual questions without training on QA data.
 
-## A Tutorial of Rational Speech Act for Deep Learning People
+**Imagine if we can train an ultra-large joint text-image model on a generative objective (just like BERT), then we can repurpose such model to answer visual questions. Bayesian decoding to Ultra-large Image Captioner is similar to what fine-tuning is to BERT.** Both offer valuable ways to repurpose very powerful models to do our bidding.
+
+After this proper motivation, all we need is how to **coerce the model to be question-aware**. In the paper, we refer to this as **"issue-sensitive"**.
+
+## Asking a Question without Asking a Question
+
+Let's formalize our setting a bit. It's an image captioner, so the input is  just an image: $\mathbf{i}$, and the image captioner will generate a sequence of words $\mathbf{w} = (w_1, w_2, ..., w_T)$. Usually, a VQA model's input is an image and a question tuple $(\mathbf{q}, \mathbf{i})$, and the output is $\mathbf{a} \in \mathcal{A}$ (an answer from a fixed set of answers -- exactly like classification, except with usually a couple of thousand choices). How do we bridge the difference?
+
+Here, knowledge in Philosophy of Language comes in handy -- 
+
+
+
+## RSA: Bayesian Game to Select Item from Set
+
+
 
 
 

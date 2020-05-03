@@ -13,7 +13,7 @@ In this post, I will attempt to introduce a method to control neural language ge
 
 But firist, I want to show you the "magic" we can achieve through Bayesian decoding:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/fig5_large.png?raw=true" style="width:100%"> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/fig5_large.png?raw=true" style="width:120%"> <br> <span>Figure 1: Examples from the MS COCO dataset. We can produce captions that answer questions about objects and attribute of objects.</span> </p>
 
 We make a 6-layer encoder-decoder Transformer with 55M parameters that is trained on MS COCO dataset that obtained SoTA CIDEr score, which has NEVER seen any VQA question/answer before, answer VQA questions in the image captions. The base caption shows what the Transformer originally would have outputted without our method (last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. 
 
@@ -31,13 +31,41 @@ Let's formalize our setting a bit. It's an image captioner, so the input is  jus
 
 Apparently, we can't just build a question encoder with random weights, and hope neural network will magically give us an answer. Instead of being "brain-dead", we can try to use it a bit and think: even though we are not able to ask an image captioner a question directly, we can think about what we want to get as the answer to a question. Here are some common VQA questions to an image: "What color is the wall?" "What position is the man playing?" "How many toilets are there?". The answers are "Red", "Pithcer", and "Two". 
 
-Now we take a closer look at the image -- yes, it's a picture, but we can think of it differently. 
+Now we take a closer look at the image -- yes, it's a picture, but we can think of it differently:
 
-(Introduce image as a set of attributes, first-order, second-order, abstract, etc.) (Put airplane image there) (Then after saying image = set of features/attributes, introduce RSA to pick an item from a set)
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/airplane.png?raw=true" style="width:90%"> <br> <span>Figure 2: A photo of an airplane</span> </p>
 
-## RSA: Bayesian Game to Select Item from Set
+Cognitively, what does this image mean to us? Clearly it's not a set of pixels to our mind -- when we look at this image, we see **objects**: `{"sky", "airplane", "fence", "runway/tarmac", "clouds" ...}`. Each object is made of smaller objects -- for example, `airplane` contains smaller objects: `{wheel, engine, wing, horizontal tail, vertical tail}`. Each object can have **attributes**: `{one, two, white}` -- the composition of attribute and object will give us `{two wheels, two engines, two wings, two horizontal tails, one vertical tail}`.
+
+Not just objects, smaller objects, and their attributes, our brain also understands the relationship between objects -- the **relationship** between `airplane` and `runway` is `taking off / landing`. Traditionally object recognition datasets focus solely on objects (such as MS COCO). [Visual Genome project](http://visualgenome.org/) actually has all three (object/region, attribute, relationship) annotated, but does not provide actual captions.
+
+Any fact-based visual questions around this image will not deviate from these three categories. **This tells us that our goal is to coerce the caption model to produce captions that contain words related to objects/attributes/relationships that the visual question is referring to**. In our paper, we refer to this as the "resolution" of an "issue". To put it more explicitly, if the visual question is: "How many wheels does the airplane have?", the caption needs to contain "two wheels" (In Figure 1, we showed the caption model is capable of resolving questions regarding quantity).
+
+To recap, hopefully I've convinced you an equivalence between an image, and its cognitive representation -- which is a set of objects, their attributes, and their relationships. To formalize this, we introduce $\psi(i)$ = `{airplane, airplane flying, photo, black & white photo, ....}` The resulting set is  prohibitively large -- we can roughly think this is the caption model encoder's internal knowledge of this image. **Then it is the decoder's job to select which subset of these set elements to output**. We've now reduced the task of decoding to element section from a set.
+
+## RSA: A Bayesian Game to Select Items from Set
+
+A disclaimer: I'm giving a very operational/engineering view of RSA (Rational Speech Act) framework, which **focuses not on what RSA is but what RSA does**. RSA is developed as a Psycholinguistic framework and it successfully replicated/recovered/recreated many human linguistic phenomenon (such as hyperbole: "If you give me 1M dollars, I'll answer your question", generic language: "All birds lay eggs."). It is a wonderful framework and it "reasons" about speaker/listener uncertainty. I don't understand any of this. After looking into RSA for about 3 months, my best understanding is that it's a Bayesian Game that allows selection of items in a set. My coauthor once pointed out that my understanding is a bit shallow and narrow. So I'm happy to refer anyone who is more Linguistically-inclined or Psychology-inclined to read the online book for it ([link](https://www.problang.org/)). 
+
+So, let me introduce the formalism of RSA, which relies on Bayes theorem to be recursive. In RSA, we have to rely on the raw form of Bayes' theorem. Let's first define $S_0(\mathbf{w}\vert\mathbf{i})$, aka literal speaker. This is our image captioner. It's a conditional distribution: conditioned on image, what's the probability of outputting a sequence of words. To simplify this, we assume we just output one word (one item from set). The RSA calculation is to compute two posteriors (we refer to them as pragmatic listener and pragmatic speaker) recursively:
 
 
+$$
+\begin{align*}
+L_1(\mathbf{i}|\mathbf{w}) &= \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{P(\mathbf{w})} = \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{\sum_{i \in \mathcal{I}} S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})} \\
+\end{align*}
+$$
+
+In RSA books/papers, you often see the simplified version (skipping over the normalization term):
+
+$$
+\begin{align*}
+L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
+S_1(\mathbf{w}\vert\mathbf{i}) &\propto
+\end{align*}
+$$
+
+This is cool.
 
 
 

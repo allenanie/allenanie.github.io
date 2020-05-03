@@ -21,9 +21,9 @@ Early work from Jia & Liang (2017)[^1] shows that NLP models are not immune to s
 
 However, it is hard to call these perturbed examples "adversarial examples" in the original conception of Ian Goodfellow[^5].  This paper proposed a way to define an adversarial examples in text through two properties:
 
-**Semantic equivalence** of two sentences: $\text{SemEq}(x, x')​$
+**Semantic equivalence** of two sentences: $\text{SemEq}(x, x')$
 
-**Perturbed label prediction**:  $f(x) \not= f(x')​$
+**Perturbed label prediction**:  $f(x) \not= f(x')$
 
 In our discussion, people point out that from a linguistic point of view, it is very difficult to define "semantic equivalence" because we don't have a precise and objective definition of "meaning". This is to say that even though two sentences might elicit the same effect for a particular task, they do not need to be synonymous. A more nuanced discussion of paraphrases in English can be found in *What Is a Paraphrase?* [[link](https://www.mitpressjournals.org/doi/pdf/10.1162/COLI_a_00166)] by Bhagat & Hovy (2012). In this paper, semantic equivalence is operationalized as what humans (MTurkers)  judged to be "equivalent".
 
@@ -35,7 +35,7 @@ $$
 \text{SEA}(x, x') = \unicode{x1D7D9}[\text{SemEq}(x, x') \wedge f(x) \not= f(x')] \label{1}
 $$
 
-In this paper, semantic equivalence is measured by the likelihood of paraphrasing, defined in multilingual multipivot paraphrasing paper from Lapata et al. (2017)[^6]. Pivoting is a technique in statistical machine translation proposed by Bannard and Callison-Burch (2005)[^7]: if two English strings $e_1​$ and $e_2​$ can be translated into the same French string $f​$, then they can be assumed to have the same meaning.
+In this paper, semantic equivalence is measured by the likelihood of paraphrasing, defined in multilingual multipivot paraphrasing paper from Lapata et al. (2017)[^6]. Pivoting is a technique in statistical machine translation proposed by Bannard and Callison-Burch (2005)[^7]: if two English strings $e_1$ and $e_2$ can be translated into the same French string $f$, then they can be assumed to have the same meaning.
 
 <p style="text-align: center"> <img src="https://github.com/windweller/windweller.github.io/blob/master/images/pivot-gen.png?raw=true" style="width: 20%"> <img src="https://github.com/windweller/windweller.github.io/blob/master/images/multipivot-gen.png?raw=true" style="width: 30%"> </p>
 
@@ -51,14 +51,14 @@ $$
 
 Note in the denominator, all sentences being generated (including generating the original sentence) share the probability mass. If a sentence has many easy-to-generate paraphrases (indicated by high $\phi$ value), then $p(x \vert x)$ will be small, as well as all other $p(x' \vert x)$. Dividing $p(x' \vert x)$ by $p(x \vert x)$ will get a large value (closer to 1). As for a sentence that is difficult to paraphrase, $p(x \vert x)$ should be rather large compared to $p(x' \vert x)$, then this ratio will provide a much smaller value.  
 
-Based on this intuition, Ribeiro et al. proposed to compute a semantic score $S(x, x')​$ as a measure of the paraphrasing quality:
+Based on this intuition, Ribeiro et al. proposed to compute a semantic score $S(x, x')$ as a measure of the paraphrasing quality:
 
 $$
 S(x, x') = \min(1, \frac{p(x'|x)}{p(x|x)}) \\
 \text{SemEq}(x, x') = \unicode{x1D7D9}[S(x, x') \geq \tau]
 $$
 
-A simple schema to generate adversarial sentences that satisfy the Equation 1 is: ask the paraphrase model to generate paraphrases of a sentence $x$. Try these paraphrases if they can change the model prediction: $f(x') \not = f(x)​$. 
+A simple schema to generate adversarial sentences that satisfy the Equation 1 is: ask the paraphrase model to generate paraphrases of a sentence $x$. Try these paraphrases if they can change the model prediction: $f(x') \not = f(x)$. 
 
 ### Semantically Equivalent Adversarial Rules (SEARs)
 
@@ -76,7 +76,7 @@ Since this process is applied for every pair of $(x, x')$, and if we assume huma
 
 1. **High probability of producing semantically equivalent sentences**: this is measured by a population statistic $E\_{x \sim p(x)}[\text{SemEq(x, r(x))}] \geq 1 - \delta$. Simply put, by applying this rules, most $x$ in the corpus can be translated to semantically equivalent paraphrases. In the paper, $\delta = 0.1$.
 2. **High adversary count**: rule $r$ must also generate paraphrases that will alter the prediction of the model. Additionally, the semantic similarity should be high between paraphrases. This can be measured by $\sum\_{x \in X} S(x, r(x)) \text{SEA}(x, r(x))$. 
-3. **Non-redundancy**: rules should be diverse and cover as many $x​$ as possible.
+3. **Non-redundancy**: rules should be diverse and cover as many $x$ as possible.
 
 To satisfy criteria 2 and 3, Ribeiro et al. proposed a submodular optimization objective, which can be solved with a greedy algorithm with a theoretical guarantee to a constant factor off of the optimum.
 

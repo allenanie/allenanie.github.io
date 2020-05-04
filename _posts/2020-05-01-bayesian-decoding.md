@@ -72,6 +72,8 @@ If this seems confusing, just replace $L_1$ and $S_1$ with the probability symbo
 
 We show a probability table, where rows correspond to a cognitive representation of images (denoted as $\mathbf{i}$) (each image is a set that has many items), and the column is the utterance that we generate (denoted as $\mathbf{w}$). 
 
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_fig.png?raw=true" style="width:100%"> <br> <span>Figure 3: Viewing RSA computation as Probability Tables.</span> </p>
+
 
 
 [^1]:  Lan, Zhenzhong, et al. "Albert: A lite bert for self-supervised learning of language representations." *arXiv preprint arXiv:1909.11942* (2019).

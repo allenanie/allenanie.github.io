@@ -112,9 +112,13 @@ $$
 
 And computationally it can be visualized as:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
 
+Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`. 
 
+## Evaluating on Birds (CUB)
+
+(TBD)
 
 [^1]: Hu, Z., Yang, Z., Liang, X., Salakhutdinov, R., & Xing, E. P. (2017, August). Toward controlled generation of text. In Proceedings of the 34th International Conference on Machine Learning-Volume 70 (pp. 1587-1596). JMLR. org.
 [^2]: Lample, G., Subramanian, S., Smith, E., Denoyer, L., Ranzato, M. A., & Boureau, Y. L. (2018). Multiple-attribute text rewriting.

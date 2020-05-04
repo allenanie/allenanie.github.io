@@ -32,6 +32,14 @@ Examining controllable text generation in a joint (image, text) domain solves th
 
 Rational Speech Act (RSA) framework is a Psycholinguistic framework that models how human would (rationally) communicate information. Given a set of images (let's assume each image is fully represented by a list of attributes such as `{blue cap, mountain}`), RSA is a Bayesian game where the goal is to pick an attribute from the set to best represent this image, when this image is presented with other "distracting" images. It's sort of like in a cop show, where the police lines up suspects and the witness needs to identify who did the crime.
 
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/police_lineup.jpg?raw=true" style="width:70%"> <br> <span>Source: New Yorker; University of Michigan, Law School. </span> </p>
+
+If you were asked to say a word so that police can pick out number 5, you probably wouldn't say "a man", nor would you say "khaki pants", you would say "baseball cap" because that uniquely identifies number 5. RSA is created to emulate this thought process -- when you have a group of images, you want to pick the word that best represents it (so that it's distinguishing the target image from the rest).
+
+The computational process that RSA describes that achieves this communicative goal is through two normalizations in the probability table. We start with $S_0(\mathbf{w} \vert \mathbf{i})$, as you see, this is row-stochastic (sum up to 1) where rows are "images", represented as a list of objects, columns are the objects we can pick to describe the image. 
+
+
+
 
 
 ## RSA: A Bayesian Game to Select Items from Set

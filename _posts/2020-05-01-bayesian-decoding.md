@@ -41,31 +41,36 @@ Not just objects, smaller objects, and their attributes, our brain also understa
 
 Any fact-based visual questions around this image will not deviate from these three categories. **This tells us that our goal is to coerce the caption model to produce captions that contain words related to objects/attributes/relationships that the visual question is referring to**. In our paper, we refer to this as the "resolution" of an "issue". To put it more explicitly, if the visual question is: "How many wheels does the airplane have?", the caption needs to contain "two wheels" (In Figure 1, we showed the caption model is capable of resolving questions regarding quantity).
 
-To recap, hopefully I've convinced you an equivalence between an image, and its cognitive representation -- which is a set of objects, their attributes, and their relationships. To formalize this, we introduce $\psi(i)$ = `{airplane, airplane flying, photo, black & white photo, ....}` The resulting set is  prohibitively large -- we can roughly think this is the caption model encoder's internal knowledge of this image. **Then it is the decoder's job to select which subset of these set elements to output**. We've now reduced the task of decoding to element section from a set.
+To recap, hopefully I've convinced you an equivalence between an image, and its cognitive representation -- which is a set of objects, their attributes, and their relationships. To formalize this, we introduce $\psi(i)$ = `{airplane, airplane flying, photo, black & white photo, ....}` The resulting set is  prohibitively large -- we can roughly think this is the caption model encoder's internal knowledge of this image. **Then it is the decoder's job to select which subset of these set elements to output**. We've now reduced the task of decoding to item section from a set.
 
 ## RSA: A Bayesian Game to Select Items from Set
 
-A disclaimer: I'm giving a very operational/engineering view of RSA (Rational Speech Act) framework, which **focuses not on what RSA is but what RSA does**. RSA is developed as a Psycholinguistic framework and it successfully replicated/recovered/recreated many human linguistic phenomenon (such as hyperbole: "If you give me 1M dollars, I'll answer your question", generic language: "All birds lay eggs."). It is a wonderful framework and it "reasons" about speaker/listener uncertainty. I don't understand any of this. After looking into RSA for about 3 months, my best understanding is that it's a Bayesian Game that allows selection of items in a set. My coauthor once pointed out that my understanding is a bit shallow and narrow. So I'm happy to refer anyone who is more Linguistically-inclined or Psychology-inclined to read the online book for it ([link](https://www.problang.org/)). 
+A disclaimer: I'm giving a very operational/engineering view of RSA (Rational Speech Act) framework, which **focuses not on what RSA is but what RSA does**. RSA is developed as a Psycholinguistic framework and it successfully replicated/recovered/recreated many human linguistic phenomenon. A more linguistic view is presented [here](https://www.problang.org/). 
 
-So, let me introduce the formalism of RSA, which relies on Bayes theorem to be recursive. In RSA, we have to rely on the raw form of Bayes' theorem. Let's first define $S_0(\mathbf{w}\vert\mathbf{i})$, aka literal speaker. This is our image captioner. It's a conditional distribution: conditioned on image, what's the probability of outputting a sequence of words. To simplify this, we assume we just output one word (one item from set). The RSA calculation is to compute two posteriors (we refer to them as pragmatic listener and pragmatic speaker) recursively:
+RSA is a Bayesian game assuming rational agents and the following "winning" condition: given a set of sets (a list of images), the Player1 needs to pick the best item (utterance) from the set to represent it, so that Player2 has the highest chance of picking out the right set after seeing Player1's pick. In Linguistics, this is often called a "reference game", and the item Player1 picks out satisfies a "communicative goal". A more detailed description can be found [here](https://web.stanford.edu/class/linguist130a/materials/ling130a-handout-02-18-rsa.pdf).
+
+So, let me introduce the formalism of RSA, which relies on Bayes theorem. In RSA, we have to rely on the raw form of Bayes' theorem. Let's first define $S_0(\mathbf{w}\vert\mathbf{i})$, aka literal speaker. This is our image captioner, a conditional probability distribution. The RSA calculation is to compute two probabilities (we refer to them as pragmatic listener and pragmatic speaker) recursively:
 
 
 $$
 \begin{align*}
 L_1(\mathbf{i}|\mathbf{w}) &= \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{P(\mathbf{w})} = \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{\sum_{i \in \mathcal{I}} S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})} \\
+S_1(\mathbf{w}|\mathbf{i}) &= \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{P(\mathbf{i})} = \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{\sum_{w \in \mathcal{V}} L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})} \\
 \end{align*}
 $$
 
-In RSA books/papers, you often see the simplified version (skipping over the normalization term):
+In RSA books/papers, you often see the simplified version (skipping the normalization term):
 
 $$
 \begin{align*}
 L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
-S_1(\mathbf{w}\vert\mathbf{i}) &\propto
+S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
 \end{align*}
 $$
 
-This is cool.
+If this seems confusing, just replace $L_1$ and $S_1$ with the probability symbol $P$ and it should make more sense. Looking at this formula, except that we recognize it's just Bayes theorem, it's very hard to have an intuition over what it does. Allow me to use an example (a probability table) to illustrate how RSA works and flesh out the intuition.
+
+We show a probability table, where rows correspond to a cognitive representation of images (denoted as $\mathbf{i}$) (each image is a set that has many items), and the column is the utterance that we generate (denoted as $\mathbf{w}$). 
 
 
 

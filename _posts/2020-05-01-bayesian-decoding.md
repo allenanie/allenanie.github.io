@@ -38,38 +38,33 @@ If you were asked to say a word so that police can pick out number 5, you probab
 
 The computational process that RSA describes that achieves this communicative goal is through two normalizations in the probability table. We start with $S_0(\mathbf{w} \vert \mathbf{i})$, as you see, this is row-stochastic (sum up to 1) where rows are "images", represented as a list of objects, columns are the objects we can pick to describe the image. 
 
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_simple.png?raw=true" style="width:100%"> <br> <span>Figure 3: A simple RSA computing process. </span> </p>
 
+Without considering the communicative goal, just using $S_0$ (which is often our maximum-likelihood trained model that directly approximates our data distribution), for the first row image, we will choose either  `blue baseball cap` or `mountain`. However, if we want to uniquely identify the first row (to a police officer, or to anyone who's "listening") against the other two rows, we would realize that the two other rows also have mountains. What's unique about the first row is the `blue baseball cap`. 
 
+In order to fulfill our intuition, more formally, we first normalize the columns of $S_0$, to turn it from a row-stochastic matrix to a column-stochastic matrix, arriving at $L_1$ distribution, and then normalize again to turn $L_1$ back to a row-stochastic matrix. This process describes the model considering "reasonable" alternatives of its choices and then decide what to select to achieve its best unambiguous outcome. We can see in bold number that $S_1$ will choose `blue baseball cap` to describe the first image, in the presence of two other images.
 
-
-## RSA: A Bayesian Game to Select Items from Set
-
-A disclaimer: I'm giving a very operational/engineering view of RSA (Rational Speech Act) framework, which **focuses not on what RSA is but what RSA does**. RSA is developed as a Psycholinguistic framework and it successfully replicated/recovered/recreated many human linguistic phenomenon. A more linguistic view is presented [here](https://www.problang.org/). 
-
-RSA is a Bayesian game assuming rational agents and the following "winning" condition: given a set of sets (a list of images), the Player1 needs to pick the best item (utterance) from the set to represent it, so that Player2 has the highest chance of picking out the right set after seeing Player1's pick. In Linguistics, this is often called a "reference game", and the item Player1 picks out satisfies a "communicative goal". A more detailed description can be found [here](https://web.stanford.edu/class/linguist130a/materials/ling130a-handout-02-18-rsa.pdf).
-
-So, let me introduce the formalism of RSA, which relies on Bayes theorem. In RSA, we have to rely on the raw form of Bayes' theorem. Let's first define $S_0(\mathbf{w}\vert\mathbf{i})$, aka literal speaker. This is our image captioner, a conditional probability distribution. The RSA calculation is to compute two probabilities (we refer to them as pragmatic listener and pragmatic speaker) recursively:
-
-
+More formally, these two computations can be described as:
 $$
 \begin{align*}
 L_1(\mathbf{i}|\mathbf{w}) &= \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{P(\mathbf{w})} = \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{\sum_{i \in \mathcal{I}} S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})} \\
 S_1(\mathbf{w}|\mathbf{i}) &= \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{P(\mathbf{i})} = \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{\sum_{w \in \mathcal{V}} L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})} \\
 \end{align*}
 $$
-
 In RSA books/papers, you often see the simplified version (skipping the normalization term):
-
 $$
 \begin{align*}
 L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
 S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
 \end{align*}
 $$
+More detailed analysis of RSA can be read in [here](https://www.problang.org/). 
 
-If this seems confusing, just replace $L_1$ and $S_1$ with the probability symbol $P$ and it should make more sense. Looking at this formula, except that we recognize it's just Bayes theorem, it's very hard to have an intuition over what it does. Allow me to use an example (a probability table) to illustrate how RSA works and flesh out the intuition.
+As you can see, by directly applying RSA, we are already able to control one aspect of text generation: fine-grainedness (or detailedness / granularity). 
 
-We show an idealized example of how RSA works, where rows correspond to a cognitive representation of images (denoted as $\mathbf{i}$) (each image is a set that has many items), and the column is the utterance that we generate (denoted as $\mathbf{w}$). You can image the first row `{cap, mountain}` as an image of a person wearing a cap climbing a mountain. The second row `{cap, skiing}` as an image of a person wearing a cap skiing in snow. The column corresponds to the utterance/word you would pick to describe the image (in this simplified setting, we only get to pick ONCE). In other words, row represents data (images), column represents vocabulary space (utterances). When we train a generic caption model, we obtain $S_0(\mathbf{w}\vert\mathbf{i})$ -- given an image, which word would you output to describe this image? 
+## RSA + VQA: Is Our Caption Model Question-Aware?
+
+
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 4: Viewing RSA computation as Probability Tables.</span> </p>
 
@@ -82,3 +77,4 @@ Without any additional constraint, for the first row, an image of a person weari
 [^3]:
 [^4]:
 [^5]: Nie, Allen, Reuben Cohn-Gordon, and Chris Potts. "Pragmatic Issue-Sensitive Image Captioning ." arXiv preprint arXiv:2004.14451 (2020).
+[^6]: Cohn-Gordon, Reuben, Noah Goodman, and Christopher Potts. "Pragmatically informative image captioning with character-level inference." arXiv preprint arXiv:1804.05417 (2018).

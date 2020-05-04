@@ -13,11 +13,11 @@ In the past 2 years, controlling generative models (such as GANs and VAEs) have 
 
 Despite such impressive result, controlling generative models in text has been far more difficult. Unlike images, where humans have an intuitive idea on what to control: rotation angle, brightness, blueness of picutres; age, beard, hair color for faces, we have no intuitive idea on what to control for text beyond simple ideas like sentiment or tense[^1]. Follow-up work like Lample et al.[^2] leveraged the domain where the data is collected to add additional attributes like gender, race, age, and interests (like music, book, movie, etc.), and trained a neural network from scratch conditioned on these attributes.
 
-Although these efforts have greatly expanded our capability to manipulate text, they lose the aspect of discovering “naturally learned disentangled representation” by modeling the data distribution. Also, any work that requires an attribute classifier is inherently unscalable.
+Although these efforts have greatly expanded our capability to manipulate text, they are not designed to discover the “learned disentangled representation” by modeling the data distribution. Also, any work that requires an attribute classifier is inherently unscalable.
 
 In this post, I will show you how we can control the output from a model that is trained on a joint distribution of images and text. It builds up a conditional distribution $P(\mathbf{w}\vert\mathbf{i})$ where we can control the generation of text by systematically varying the image input to this distribution. We do not rely on additional attribute classifiers and allow the control of text generation through a simple visual question inputted by the user. 
 
-Since conditioning on images allows us to (again) from an intuitive understanding of what aspect of  text we want to control, we can use our understanding in images (various objects, behaviors) as ground truth to dictate what we want in text. Our proposed method also only uses a trained generative model, which means any aspect we are able to control, is inherently learned by the generative model by learning from the conditional distribution.
+Since conditioning on images allows us to (again) form an intuitive understanding of what aspect of  text we want to control, we can use our understanding in images (various objects, behaviors) as ground truth to dictate what we want in text. Our proposed method also only uses a trained generative model, which means any aspect we are able to control, is inherently learned by the generative model by learning from the conditional distribution.
 
 Previous works that studied this setting (and used methods somewhat similar to ours) mostly focused on the concept of "granularity" -- how detailed can the text be [^3][^4]. This is only one attribute of text to control. In our work, we will try to control the model to generate text on an infinite amount of attributes. The work described by this post is my new paper with Reuben Cohn-Gordon and Chris Potts[^5].
 
@@ -26,11 +26,11 @@ Previous works that studied this setting (and used methods somewhat similar to o
 
 By asking visual questions, such as "what color is the sky", we control the image captioner to focus on the peculiar nature of this photo (that this is a black & white photo). Instead of describing what is the scene of this picture ("airplane taking off"), the caption model describes the meta-level information of this picture: ("a black and white photo of an airplane").
 
-Examining controllable text generation in a joint (image, text) domain solves the problem of not knowing what aspect of text to control, and dense annotations in image datasets allows us to quickly verify how well we can control the generated text. I will then describe how we control the caption generation by asking a question (of course, a pre-trained VQA model is involved).
+Examining controllable text generation in a joint (image, text) domain solves the problem of not knowing what aspect of text to control, and dense annotations in image datasets allows us to quickly verify how well we can control the generated text. I will then describe how we control the caption generation by asking a question.
 
 ## Controlling via RSA: A Simple Tour
 
-Rational Speech Act (RSA) framework is a Psycholinguistic framework that models how human would (rationally) communicate information. Given a set of images (let's assume each image is fully represented by a list of attributes such as `{blue cap, mountain}`), RSA is a Bayesian game where the goal is to pick an attribute from the set to best represent this image, in the presence of other "distracting" images. It's like in a cop show, where the police lines up suspects and the witness needs to identify who committed the crime.
+The Rational Speech Act (RSA) framework is a Psycholinguistic framework that models how human would (rationally) communicate information. Given a set of images (let's assume each image is fully represented by a list of attributes such as `{blue cap, mountain}`), RSA is a Bayesian game where the goal is to pick an attribute from the set to best represent this image, in the presence of other "distracting" images. It's like in a cop show, where the police lines up suspects and the witness needs to identify who committed the crime.
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/police_lineup.jpg?raw=true" style="width:70%"> <br> <span>Source: New Yorker; University of Michigan, Law School. </span> </p>
 
@@ -112,7 +112,7 @@ And computationally it can be visualized as:
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
 
-Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`. 
+Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`.
 
 ## Evaluating on Birds (CUB)
 

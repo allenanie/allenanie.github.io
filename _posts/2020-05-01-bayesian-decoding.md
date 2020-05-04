@@ -80,7 +80,21 @@ Suppose we happen to select these 6 images from a larger group of images. First 
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 5: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
 
-OK. We ran into a problem. The problem is very simple to understand -- even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation for now is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row), which is the mountain. Now maybe you have already noticed a shortcut to reason about RSA process: it's similar to "cancelling things out", where the items in the distarctor sets cancel out items in the target set. So could we just pick a better set of distractors so that the vanilla RSA can work? Absolutely. 
+OK. We ran into a problem. The problem is very simple to understand -- even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation  is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row) against all else, which is the mountain. 
+
+Luckily, a solution has already been worked out by Kao et al. [^6] The idea is pretty simple, why not just add up the probability within the cell (across the column) after computing $L_1$ probability matrix? More formally, this corresponds a different $S_1$: 
+
+$$
+\begin{align*}
+U_1^{\mathbf{C}}(\mathbf{i}, \mathbf{w}, \mathbf{C}) &= \log \Big( \sum_{\mathbf{i}' \in \mathcal{I}}\delta_{\mathbf{C}(\mathbf{i})=\mathbf{C}(\mathbf{i}')} L_1(\mathbf{i}'|\mathbf{w}) \Big) \\
+S_1^{\mathbf{C}}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \big(\alpha U_1^{\mathbf{C}}(\mathbf{i}, \mathbf{w}, \mathbf{C}) - \text{cost}(\mathbf{w}) \big)
+\end{align*}
+$$
+
+This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. If we visualize this process with actual probability numbers, here's the result:
+
+
+
 
 
 
@@ -89,3 +103,4 @@ OK. We ran into a problem. The problem is very simple to understand -- even thou
 [^3]:Vedantam, R., Bengio, S., Murphy, K., Parikh, D., & Chechik, G. (2017). Context-aware captions from context-agnostic supervision. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition* (pp. 251-260).
 [^4]:Mao, J., Huang, J., Toshev, A., Camburu, O., Yuille, A. L., & Murphy, K. (2016). Generation and comprehension of unambiguous object descriptions. In *Proceedings of the IEEE conference on computer vision and pattern recognition* (pp. 11-20).
 [^5]: Nie, Allen, Reuben Cohn-Gordon, and Chris Potts. "Pragmatic Issue-Sensitive Image Captioning ." arXiv preprint arXiv:2004.14451 (2020).
+[^6]: Kao, J. T., Wu, J. Y., Bergen, L., & Goodman, N. D. (2014). Nonliteral understanding of number words. Proceedings of the National Academy of Sciences, 111(33), 12002-12007.

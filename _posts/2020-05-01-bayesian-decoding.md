@@ -40,9 +40,9 @@ The computational process that RSA describes that achieves this communicative go
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_simple.png?raw=true" style="width:100%"> <br> <span>Figure 3: A simple RSA computing process. </span> </p>
 
-Without considering the communicative goal, just using $S_0$ (which is often our maximum-likelihood trained model that directly approximates our data distribution), for the first row image, we will choose either  `blue baseball cap` or `mountain`. However, if we want to uniquely identify the first row (to a police officer, or to anyone who's "listening") against the other two rows, we would realize that the two other rows also have mountains. What's unique about the first row is the `blue baseball cap`. 
+Without considering the communicative goal, just using $S_0$ (which is often our maximum-likelihood trained model that directly approximates our data distribution), for the first row, we will choose either  `baseball cap` or `mountain`. However, if we want to uniquely identify it (to a police officer, or to anyone who's "listening") against the other two rows, we would realize that the other two rows also have mountains. What's unique about the first row is the `baseball cap`. 
 
-In order to fulfill our intuition, more formally, we first normalize the columns of $S_0$, to turn it from a row-stochastic matrix to a column-stochastic matrix, arriving at $L_1$ distribution, and then normalize again to turn $L_1$ back to a row-stochastic matrix. This process describes the model considering "reasonable" alternatives of its choices and then decide what to select to achieve its best unambiguous outcome. We can see in bold number that $S_1$ will choose `blue baseball cap` to describe the first image, in the presence of two other images.
+In order to fulfill our intuition, more formally, we first normalize the columns of $S_0$, to turn it from a row-stochastic matrix to a column-stochastic matrix, arriving at $L_1$ distribution, and then normalize again to turn $L_1$ back to a row-stochastic matrix. This process describes the model considering "reasonable" alternatives of its choices and then decide what to select to achieve its best unambiguous outcome. We can see in bold number that $S_1$ will choose `baseball cap` to describe the first image, contrasting two other images.
 
 More formally, these two computations can be described as:
 
@@ -62,7 +62,7 @@ S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
 \end{align*}
 $$
 
-More detailed tutorial of RSA can be found in [here](https://www.problang.org/). As you can see, by directly applying RSA, we are already able to control one aspect of text generation: fine-grainedness (or detailedness / granularity). 
+More detailed tutorial of RSA can be found in [here](https://www.problang.org/). As you can see, by directly applying RSA, we are already able to control one aspect of text generation: how detailed do we want the text to be?
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/vedantam_example.png?raw=true" style="width:80%"> <br> <span>Figure 4: Decoding result from Vedantam et al.'s work. Even though they are not applying a full RSA solution, their suppressor-emitter beam search (where they also normalize across distractors) is equivalent to computing RSA normalization.</span> </p>
 

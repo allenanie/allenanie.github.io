@@ -9,7 +9,7 @@ title: "Bayesian Neural Decoding: <br> &mdash; Building an Image Captioner That 
 
 In the past 2 years, it has been clear that NLP will continue the path of training ultra-large general models like BERT, XLNet, OpenAI-GPT2, ELECTRA, with general-purpose unsupervised learning objectives (such as language modeling, or discourse objectives[^1][^2] etc.). These models are massive, takes a long time to train, and once trained, we don't want to retrain from scratch again. In this sense, model re-purposing becomes important -- how do we leverage these ultra-large model to do what we want them to do? In the case of supervised learning, it was **fine-tuning** that enabled utilization of these general models. But what else? 
 
-In this post, I will attempt to introduce a method to control neural language generation without retraining any model. I will attempt to **coerce the model to do something it was never trained to do** (similar to zero-shot learning), and demonstrate the power of Bayesian neural decoding. Through this post I will illustrate key points from my new paper with Reuben Cohn-Gordon and Chris Potts[^3]. 
+In this post, I will attempt to introduce a method to control neural language generation without retraining any model. I will attempt to **coerce the model to do something it was never trained to do**, and demonstrate the power of Bayesian neural decoding. Through this post I will illustrate key points from my new paper with Reuben Cohn-Gordon and Chris Potts[^3]. 
 
 But firist, I want to show you the "magic" we can achieve through Bayesian decoding:
 
@@ -17,11 +17,9 @@ But firist, I want to show you the "magic" we can achieve through Bayesian decod
 
 We make a 6-layer encoder-decoder Transformer with 55M parameters that is trained on MS COCO dataset that obtained SoTA CIDEr score, which has NEVER seen any VQA question/answer before, answer VQA questions in the image captions. The base caption shows what the Transformer originally would have outputted without our method (last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. 
 
-Since image captioner can be considered a very general model learning the association between text and image (grounding text into image scenes), it avoids making potential mistakes VQA model might have made. For example, the fourth image asks "What color is the sky?". A SoTA VQA model will answer "Gray." (If you want to try it -- here's a link to a [live demo](https://vqa.cloudcv.org/)). However, this is neither a very informative nor helpful answer -- in fact, **the sky is not gray** in this picture, it is only gray because it's **a black and white photo of the sky**. Luckily, because an image captioning model has more general-domain knowledge, it picks up on that and spells out the right answer.
+Since image captioner can be considered as a very general model learning the association between text and image (grounding text into image scenes), it avoids making potential mistakes VQA model might have made. For example, the fourth image asks "What color is the sky?". A SoTA VQA model will answer "Gray." (If you want to try it -- here's a link to a [live demo](https://vqa.cloudcv.org/)). However, this is neither a very informative nor helpful answer -- in fact, **the sky is not gray** in this picture, it is only gray because it's **a black and white photo of the sky**. Luckily, because an image captioning model has more general-domain knowledge, it picks up on that and spells out the right answer.
 
-This is perhaps the best reason for repurposing an image captioning model to answer question beyond "just because we can". An image captioning model has the chance to fully learn the world and the knowledge within (text and vision). It does not need to live under VQA's data bias where answer is always one or two words. With our method (and some tuning), it can answer any visual questions without training on QA data.
-
-**Imagine if we can train an ultra-large joint text-image model on a generative objective (just like BERT), then we can repurpose such model to answer visual questions. Bayesian decoding to Ultra-large Image Captioner is similar to what fine-tuning is to BERT.** Both offer valuable ways to repurpose very powerful models to do our bidding.
+This is perhaps the best reason for repurposing an image captioning model to answer question beyond "just because we can". An image captioning model has the chance to fully learn the world and the knowledge within (text and vision). It does not need to live under VQA's data bias where answer is always one or two words. With our method (and some tuning), it can answer any visual questions without training on QA data (full disclosure: we still need a pre-trained VQA model).
 
 After this proper motivation, all we need is how to **coerce the model to be question-aware**. In the paper, we refer to this as **"issue-sensitive"**.
 
@@ -70,9 +68,11 @@ $$
 
 If this seems confusing, just replace $L_1$ and $S_1$ with the probability symbol $P$ and it should make more sense. Looking at this formula, except that we recognize it's just Bayes theorem, it's very hard to have an intuition over what it does. Allow me to use an example (a probability table) to illustrate how RSA works and flesh out the intuition.
 
-We show a probability table, where rows correspond to a cognitive representation of images (denoted as $\mathbf{i}$) (each image is a set that has many items), and the column is the utterance that we generate (denoted as $\mathbf{w}$). 
+We show an idealized example of how RSA works, where rows correspond to a cognitive representation of images (denoted as $\mathbf{i}$) (each image is a set that has many items), and the column is the utterance that we generate (denoted as $\mathbf{w}$). You can image the first row `{cap, mountain}` as an image of a person wearing a cap climbing a mountain. The second row `{cap, skiing}` as an image of a person wearing a cap skiing in snow. The column corresponds to the utterance/word you would pick to describe the image (in this simplified setting, we only get to pick ONCE). In other words, row represents data (images), column represents vocabulary space (utterances). When we train a generic caption model, we obtain $S_0(\mathbf{w}\vert\mathbf{i})$ -- given an image, which word would you output to describe this image? 
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_fig.png?raw=true" style="width:100%"> <br> <span>Figure 3: Viewing RSA computation as Probability Tables.</span> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 3: Viewing RSA computation as Probability Tables.</span> </p>
+
+Without any additional constraint, for the first row, an image of a person wearing a cap climbing a mountain, I can choose either "cap" or "mountain" to describe it, hence P("cap" \| i = 1) = P("mountain"\| i=1) in the top-left table for $S_0$. Now we add constraints -- what if we add 5 more images (the next 5 rows) to the first image, what should we output 
 
 
 

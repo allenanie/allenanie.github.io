@@ -68,7 +68,7 @@ More detailed tutorial of RSA can be found in [here](https://www.problang.org/).
 
 ## RSA + VQA: Is Our Caption Question-Aware?
 
-Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, we want the generated caption to address the question.
+Let's set our goal straight: first of all, we want to control the caption generation through a question. Second of all, we want the generated caption to address the question.
 
 Given a target image and a question: $(\mathbf{i}, \mathbf{q})$, we can directly apply any pre-trained VQA model to get an answer. Given a lot of images and the same question, we can get a lot of answers. Some of these answers are different from the answer for the target image, some are the same. For example, with our target image: `{blue baseball cap, mountain}`, we can ask the following visual question: `Does the person wear a baseball cap?`, where the answer is `Yes` or `No`. 
 
@@ -99,7 +99,7 @@ So, what QuD-RSA actually does is that, it creates an "equivalence class" betwee
 
 This last ingredient allows us to add a pressure to the $S_1$ matrix to select items that are shared amongst all images within the cell. Intuitively, since all images within the target cell share the same answer to the VQA question, whatever attribute/object in the image allows that answer will have a higher chance to appear in the resulting caption. This ingredient we choose to add is called [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)), where flatter distribution (more uniform distribution) will have a higher entropy, and peakier distribution will have a lower entropy. Since `baseball cap` is shared among all three images in the target cell, it will have the highest entropy.
 
-More formally, we can write it as:
+More formally, we can write it out to combine both $U_1$ and $U_2$, with a balancing hyper-parameter $\beta$ that decides between how much weight we want to put on either utility:
 
 $$
 \begin{align*}

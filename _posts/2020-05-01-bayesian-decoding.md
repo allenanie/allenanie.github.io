@@ -66,8 +66,6 @@ More detailed tutorial of RSA can be found in [here](https://www.problang.org/).
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/vedantam_example.png?raw=true" style="width:80%"> <br> <span>Figure 4: Decoding result from Vedantam et al.'s work. Even though they are not applying a full RSA solution, their suppressor-emitter beam search (where they also normalize across distractors) is equivalent to computing RSA normalization.</span> </p>
 
-After introducing what RSA does, let's see how we can combine RSA with VQA to give us the question-based text control that we want!
-
 ## RSA + VQA: Is Our Caption Question-Aware?
 
 Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, we want the generated caption to address the question.

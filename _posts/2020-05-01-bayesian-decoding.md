@@ -72,7 +72,7 @@ After introducing what RSA does, let's see how we can combine RSA with VQA to gi
 
 Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, we want the generated caption to address the question.
 
-Given a target image and a question: $(\mathbf{i}, \mathbf{q})$, we can directly apply any pre-trained VQA model to get an answer. Given a lot of images, we can get a lot of answers. Some of these answers are different from the answer for the target image, some are the same. For example, with our target image: `{blue baseball cap, mountain}`, we can ask the following visual question: `Does the person wear a baseball cap?`, where the answer is `Yes` or `No`. 
+Given a target image and a question: $(\mathbf{i}, \mathbf{q})$, we can directly apply any pre-trained VQA model to get an answer. Given a lot of images and the same question, we can get a lot of answers. Some of these answers are different from the answer for the target image, some are the same. For example, with our target image: `{blue baseball cap, mountain}`, we can ask the following visual question: `Does the person wear a baseball cap?`, where the answer is `Yes` or `No`. 
 
 Given this answer, we can partition a list of images into two groups: images where the person is wearing a baseball cap, and images where the person is NOT wearing a baseball cap. Note that the question can be extremely general and ask about various aspects of the image.
 

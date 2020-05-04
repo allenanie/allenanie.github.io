@@ -91,9 +91,9 @@ S_1^{\mathbf{C}}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \b
 \end{align*}
 $$
 
-This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. If we visualize this process with actual probability numbers, here's the result:
+This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. In the RSA literature, this is often referred to as the QuD-RSA (QuD: Question-under-Discussion). If we visualize this process with actual probability numbers, here's the result:
 
-
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q.png?raw=true" style="width:100%"> <br> <span>Figure 6: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
 
 
 

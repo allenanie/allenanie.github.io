@@ -70,7 +70,7 @@ After introducing what RSA does, let's see how we can combine RSA with VQA to gi
 
 ## RSA + VQA: Is Our Caption Question-Aware?
 
-Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, the evaluation of our success is that whether the generated caption contains information that addresses the question.
+Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, we want the generated caption to address the question.
 
 Given a target image and a question: $(\mathbf{i}, \mathbf{q})$, we can directly apply any pre-trained VQA model to get an answer. Given a lot of images, we can get a lot of answers. Some of these answers are different from the answer for the target image, some are the same. For example, with our target image: `{blue baseball cap, mountain}`, we can ask the following visual question: `Does the person wear a baseball cap?`, where the answer is `Yes` or `No`. 
 
@@ -93,8 +93,26 @@ $$
 
 This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. In the RSA literature, this is often referred to as the QuD-RSA (QuD: Question-under-Discussion). If we visualize this process with actual probability numbers, here's the result:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q.png?raw=true" style="width:100%"> <br> <span>Figure 6: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
 
+As you can see, what we really did is just add up along the column for the original $L_1$ matrix, and then normalize over the row for the target image. This allows our RSA output to be issue-sensitive (question-aware). But wait wait wait, something is not right here! If you actually looked very closely at the $S_1^\mathbf{C}$ result, you'd realize what the RSA picked out is still wrong -- it would randomly choose between `skiing` and `mountain`. What the heck is going on?
+
+So, what QuD-RSA actually does is that, it creates an "equivalence class" between all images in the same cell. It converts the original objective, which is to "pick an item to best describe target image" to "pick an item to best describe the target cell". QuD-RSA is designed to ignore the differences between within-cell images. Since picking `mountain` or `skiing` (neither appeared in the distractor images) would already best identify the target cell, there is no additional incentive to pick `baseball cap`. Suffice to say this is not what we want.
+
+This last ingredient allows us to add a pressure to the $S_1$ matrix to select items that are shared amongst all images within the cell. Intuitively, since all images within the target cell share the same answer to the VQA question, whatever attribute/object in the image allows that answer will have a higher chance to appear in the resulting caption. This ingredient we choose to add is called [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)), where flatter distribution (more uniform distribution) will have a higher entropy, and peakier distribution will have a lower entropy. Since `baseball cap` is shared among all three images in the target cell, it will have the highest entropy.
+
+More formally, we can write it as:
+
+$$
+\begin{align*}
+U_2(\mathbf{i}, \mathbf{w}, \mathbf{C}) &= H(L_1(\mathbf{i}'|\mathbf{w}) \cdot \delta_{\mathbf{C}(\mathbf{i})=\mathbf{C}(\mathbf{i}')}) \\
+S_1^{\mathbf{C}+H}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \big( \alpha ((1-\beta)U_1 + \beta U_2) -\text{cost}(\mathbf{w}) \big)
+\end{align*}
+$$
+
+And computationally it can be visualized as:
+
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
 
 
 

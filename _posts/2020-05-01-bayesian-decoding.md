@@ -28,23 +28,11 @@ By asking visual questions, such as "what color is the sky", we control the imag
 
 Examining controllable text generation in a joint (image, text) domain solves the problem of not knowing what aspect of text to control, and dense annotations in image datasets allows us to quickly verify how well we can control the generated text. I will then describe how we control the caption generation by asking a question (of course, a pre-trained VQA model is involved).
 
-## Asking a Question without Asking a Question
+## Controlling via RSA: A Simple Tour
 
-Let's formalize our setting a bit. It's an image captioner, so the input is  just an image: $\mathbf{i}$, and the image captioner will generate a sequence of words $\mathbf{w} = (w_1, w_2, ..., w_T)$. Usually, a VQA model's input is an image and a question tuple $(\mathbf{q}, \mathbf{i})$, and the output is $\mathbf{a} \in \mathcal{A}$ (an answer from a fixed set of answers -- exactly like classification, except with usually a couple of thousand choices). How do we bridge the difference?
+Rational Speech Act (RSA) framework is a Psycholinguistic framework that models how human would (rationally) communicate information. Given a set of images (let's assume each image is fully represented by a list of attributes such as `{blue cap, mountain}`), RSA is a Bayesian game where the goal is to pick an attribute from the set to best represent this image, when this image is presented with other "distracting" images. It's sort of like in a cop show, where the police lines up suspects and the witness needs to identify who did the crime.
 
-Apparently, we can't just build a question encoder with random weights, and hope neural network will magically give us an answer. Instead of being "brain-dead", we can try to use it a bit and think: even though we are not able to ask an image captioner a question directly, we can think about what we want to get as the answer to a question. Here are some common VQA questions to an image: "What color is the wall?" "What position is the man playing?" "How many toilets are there?". The answers are "Red", "Pithcer", and "Two". 
 
-Now we take a closer look at the image -- yes, it's a picture, but we can think of it differently:
-
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/airplane.png?raw=true" style="width:90%"> <br> <span>Figure 3: A photo of an airplane</span> </p>
-
-Cognitively, what does this image mean to us? Clearly it's not a set of pixels to our mind -- when we look at this image, we see **objects**: `{"sky", "airplane", "fence", "runway/tarmac", "clouds" ...}`. Each object is made of smaller objects -- for example, `airplane` contains smaller objects: `{wheel, engine, wing, horizontal tail, vertical tail}`. Each object can have **attributes**: `{one, two, white}` -- the composition of attribute and object will give us `{two wheels, two engines, two wings, two horizontal tails, one vertical tail}`.
-
-Not just objects, smaller objects, and their attributes, our brain also understands the relationship between objects -- the **relationship** between `airplane` and `runway` is `taking off / landing`. Traditionally object recognition datasets focus solely on objects (such as MS COCO). [Visual Genome project](http://visualgenome.org/) actually has all three (object/region, attribute, relationship) annotated, but does not provide actual captions.
-
-Any fact-based visual questions around this image will not deviate from these three categories. **This tells us that our goal is to coerce the caption model to produce captions that contain words related to objects/attributes/relationships that the visual question is referring to**. In our paper, we refer to this as the "resolution" of an "issue". To put it more explicitly, if the visual question is: "How many wheels does the airplane have?", the caption needs to contain "two wheels" (In Figure 1, we showed the caption model is capable of resolving questions regarding quantity).
-
-To recap, hopefully I've convinced you an equivalence between an image, and its cognitive representation -- which is a set of objects, their attributes, and their relationships. To formalize this, we introduce $\psi(i)$ = `{airplane, airplane flying, photo, black & white photo, ....}` The resulting set is  prohibitively large -- we can roughly think this is the caption model encoder's internal knowledge of this image. **Then it is the decoder's job to select which subset of these set elements to output**. We've now reduced the task of decoding to item section from a set.
 
 ## RSA: A Bayesian Game to Select Items from Set
 

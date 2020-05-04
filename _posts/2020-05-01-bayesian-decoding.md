@@ -45,36 +45,47 @@ Without considering the communicative goal, just using $S_0$ (which is often our
 In order to fulfill our intuition, more formally, we first normalize the columns of $S_0$, to turn it from a row-stochastic matrix to a column-stochastic matrix, arriving at $L_1$ distribution, and then normalize again to turn $L_1$ back to a row-stochastic matrix. This process describes the model considering "reasonable" alternatives of its choices and then decide what to select to achieve its best unambiguous outcome. We can see in bold number that $S_1$ will choose `blue baseball cap` to describe the first image, in the presence of two other images.
 
 More formally, these two computations can be described as:
+
 $$
 \begin{align*}
 L_1(\mathbf{i}|\mathbf{w}) &= \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{P(\mathbf{w})} = \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{\sum_{i \in \mathcal{I}} S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})} \\
 S_1(\mathbf{w}|\mathbf{i}) &= \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{P(\mathbf{i})} = \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{\sum_{w \in \mathcal{V}} L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})} \\
 \end{align*}
 $$
+
 In RSA books/papers, you often see the simplified version (skipping the normalization term):
+
 $$
 \begin{align*}
 L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
 S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
 \end{align*}
 $$
-More detailed analysis of RSA can be read in [here](https://www.problang.org/). 
 
-As you can see, by directly applying RSA, we are already able to control one aspect of text generation: fine-grainedness (or detailedness / granularity). 
+More detailed tutorial of RSA can be found in [here](https://www.problang.org/). As you can see, by directly applying RSA, we are already able to control one aspect of text generation: fine-grainedness (or detailedness / granularity). 
 
-## RSA + VQA: Is Our Caption Model Question-Aware?
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/vedantam_example.png?raw=true" style="width:80%"> <br> <span>Figure 4: Decoding result from Vedantam et al.'s work. Even though they are not applying a full RSA solution, their suppressor-emitter beam search (where they also normalize across distractors) is equivalent to computing RSA normalization.</span> </p>
 
+After introducing what RSA does, let's see how we can combine RSA with VQA to give us the question-based text control that we want!
 
+## RSA + VQA: Is Our Caption Question-Aware?
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 4: Viewing RSA computation as Probability Tables.</span> </p>
+Let's set the goal straight: first of all, we want to control the caption generation through a question. Second of all, the evaluation of our success is that whether the generated caption contains information that addresses the question.
 
-Without any additional constraint, for the first row, an image of a person wearing a cap climbing a mountain, I can choose either "cap" or "mountain" to describe it, hence P("cap" \| i = 1) = P("mountain"\| i=1) in the top-left table for $S_0$. Now we add constraints -- what if we add 5 more images (the next 5 rows) to the first image, what should we output 
+Given a target image and a question: $(\mathbf{i}, \mathbf{q})$, we can directly apply any pre-trained VQA model to get an answer. Given a lot of images, we can get a lot of answers. Some of these answers are different from the answer for the target image, some are the same. For example, with our target image: `{blue baseball cap, mountain}`, we can ask the following visual question: `Does the person wear a baseball cap?`, where the answer is `Yes` or `No`. 
+
+Given this answer, we can partition a list of images into two groups: images where the person is wearing a baseball cap, and images where the person is NOT wearing a baseball cap. Note that the question can be extremely general and ask about various aspects of the image.
+
+Suppose we happen to select these 6 images from a larger group of images. First three images have baseball cap, the next three do not. Can we just naively apply RSA and hope the item we pick will be about the baseball cap? The answer is unfortunately no. Before RSA, the caption model will randomly choose between baseball cap and mountain. After RSA, it will choose mountain, which is worse.
+
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 5: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
+
+OK. We ran into a problem. The problem is very simple to understand -- even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation for now is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row), which is the mountain. Now maybe you have already noticed a shortcut to reason about RSA process: it's similar to "cancelling things out", where the items in the distarctor sets cancel out items in the target set. So could we just pick a better set of distractors so that the vanilla RSA can work? Absolutely. 
 
 
 
 [^1]: Hu, Z., Yang, Z., Liang, X., Salakhutdinov, R., & Xing, E. P. (2017, August). Toward controlled generation of text. In Proceedings of the 34th International Conference on Machine Learning-Volume 70 (pp. 1587-1596). JMLR. org.
 [^2]: Lample, G., Subramanian, S., Smith, E., Denoyer, L., Ranzato, M. A., & Boureau, Y. L. (2018). Multiple-attribute text rewriting.
-[^3]:
-[^4]:
+[^3]:Vedantam, R., Bengio, S., Murphy, K., Parikh, D., & Chechik, G. (2017). Context-aware captions from context-agnostic supervision. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition* (pp. 251-260).
+[^4]:Mao, J., Huang, J., Toshev, A., Camburu, O., Yuille, A. L., & Murphy, K. (2016). Generation and comprehension of unambiguous object descriptions. In *Proceedings of the IEEE conference on computer vision and pattern recognition* (pp. 11-20).
 [^5]: Nie, Allen, Reuben Cohn-Gordon, and Chris Potts. "Pragmatic Issue-Sensitive Image Captioning ." arXiv preprint arXiv:2004.14451 (2020).
-[^6]: Cohn-Gordon, Reuben, Noah Goodman, and Christopher Potts. "Pragmatically informative image captioning with character-level inference." arXiv preprint arXiv:1804.05417 (2018).

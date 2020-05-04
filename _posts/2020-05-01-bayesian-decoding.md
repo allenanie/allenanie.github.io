@@ -36,7 +36,7 @@ Rational Speech Act (RSA) framework is a Psycholinguistic framework that models 
 
 If you were asked to say a word so that the police can pick out number 5 (but you are not allowed to say numbers), you probably wouldn't say "a man", nor would you say "khaki pants", you would say "baseball cap" because that uniquely identifies number 5. RSA is created to emulate this thought process -- when you have a group of images, you want to pick the word that best represents it (so that it's distinguishing the target image from the rest).
 
-The computational process that RSA describes that achieves this communicative goal is through two normalizations in the probability table. We start with $S_0(\mathbf{w} \vert \mathbf{i})$, as you see, this is row-stochastic (sum up to 1) where rows are "images", represented as a list of objects, columns are the objects we can pick to describe the image. 
+The computational process that RSA describes that achieves this communicative goal is through normalizing the probability table twice. We start with $S_0(\mathbf{w} \vert \mathbf{i})$, a row-stochastic probability matrix (probabilities in a row sum up to 1) where the rows are "images", represented as a list of objects, and the columns are the objects we can pick to describe the image. 
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_simple.png?raw=true" style="width:100%"> <br> <span>Figure 3: A simple RSA computing process. </span> </p>
 

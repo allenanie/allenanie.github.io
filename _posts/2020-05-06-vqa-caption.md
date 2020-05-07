@@ -21,7 +21,7 @@ Maybe you can already see what we want to do: we want to use the questions from 
 
 If we are able to achive this -- using a QuD (natural language question) to ask the model to focus on different features of the image, we open the door to truly flexible controllable text generation. For the same image, I can ask: "Can the man run far?", and the caption can be "This is a runner who jogs through the entire park." Or I can ask "Does this man look tired?", and the caption can be "The man is energetically running."
 
-So the idea seems cool, but is this technologically possible? Remember, there is no additional training involved. How can an image captioner that is only trained on image caption dataset be sensitive to questions from a VQA dataset? To answer this question, we need to rethink what question is and introduce Rational Speech Act (RSA)  framework. A more technical overview of this is described in my new paper with with Reuben Cohn-Gordon and Chris Potts[^6].
+So the idea seems fun, but is this technologically possible? Remember, there is no additional training involved. How can an image captioner that is only trained on image caption dataset be sensitive to questions from a VQA dataset? To answer this question, we need to rethink what question is and introduce Rational Speech Act (RSA)  framework. A more technical overview of this is described in my new paper with with Reuben Cohn-Gordon and Chris Potts[^6].
 
 ## What is a Question?
 

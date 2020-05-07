@@ -473,6 +473,49 @@ sup .footnote {
   cursor: pointer;
 }
 
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  overflow: auto;
+  page-break-inside: auto;
+  text-align: left;
+}
+
+table tr:nth-child(2n), thead {
+  background-color: #f8f8f8;
+}
+
+tr {
+border-top: 1px solid #dfe2e5;
+margin: 0;
+padding: 0;
+}
+
+tr {
+page-break-inside: avoid;
+page-break-after: auto;
+}
+
+table tr td {
+  border: 1px solid #dfe2e5;
+  margin: 0;
+  padding: 6px 13px;
+}
+
+td, th {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+table tr th {
+  font-weight: bold;
+  border: 1px solid #dfe2e5;
+  border-bottom: 0;
+  margin: 0;
+  padding: 6px 13px;
+}
+
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
 @import "highlights";

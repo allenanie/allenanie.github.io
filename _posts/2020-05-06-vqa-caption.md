@@ -85,7 +85,7 @@ Suppose we happen to select these 6 images from a larger group of images. First 
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 5: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
 
-OK. We ran into a problem. The problem is very simple to understand -- even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation  is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row) against all else, which is the mountain. 
+OK. We ran into a problem: even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row) against all else, which is the mountain. 
 
 Luckily, a solution has already been worked out by Kao et al. [^7] The idea is pretty simple, why not just add up the probability within the cell (across the column) after computing $L_1$ probability matrix? More formally, this corresponds a different $S_1$: 
 
@@ -100,13 +100,13 @@ This formula redefines the pragmatic listener matrix $L_1$ as an informative uti
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
 
-As you can see, what we really did is just add up along the column for the original $L_1$ matrix, and then normalize over the row for the target image. This allows our RSA output to be issue-sensitive (question-aware). But wait wait wait, something is not right here! If you actually looked very closely at the $S_1^\mathbf{C}$ result, you'd realize what the RSA picked out is still wrong -- it would randomly choose between `skiing` and `mountain`. What the heck is going on?
+As you can see, what we really did is just add up along the column for the original $L_1$ matrix, and then normalize over the row for the target image. This allows our RSA output to be issue-sensitive (question-aware). But wait wait wait, something is not right here! If you actually looked very closely at the $S_1^\mathbf{C}$ table, you'd realize what the RSA picked out is still wrong -- it would randomly choose between `skiing` and `mountain`. What the heck is going on?
 
 So, what QuD-RSA actually does is that, it creates an "equivalence class" between all images in the same cell. It converts the original objective, which is to "pick an item to best describe target image" to "pick an item to best describe the target cell". QuD-RSA is designed to ignore the differences between within-cell images. Since picking `mountain` or `skiing` (neither appeared in the distractor images) would already best identify the target cell, there is no additional incentive to pick `baseball cap`. Suffice to say this is not what we want.
 
-This last ingredient allows us to add a pressure to the $S_1$ matrix to select items that are shared amongst all images within the cell. Intuitively, since all images within the target cell share the same answer to the VQA question, whatever attribute/object in the image allows that answer will have a higher chance to appear in the resulting caption. This ingredient we choose to add is called [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)), where flatter distribution (more uniform distribution) will have a higher entropy, and peakier distribution will have a lower entropy. Since `baseball cap` is shared among all three images in the target cell, it will have the highest entropy.
+This last ingredient allows us to add a pressure to $S_1$ to select items that are shared amongst all images within the cell. Intuitively, since all images within the target cell share the same answer to the VQA question, whatever attribute/object in the image allows that answer will have a higher chance to appear in the resulting caption. This ingredient we choose to add is called [information entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)), where flatter distribution (more uniformly distributed) will have a higher entropy, and peakier distribution will have a lower entropy. Since `baseball cap` is shared among all three images in the target cell, it will have the highest entropy.
 
-More formally, we can write it out to combine both $U_1$ and $U_2$, with a balancing hyper-parameter $\beta$ that decides between how much weight we want to put on either utility:
+More formally, we can write it out to combine both $U_1$ and $U_2$, with a balancing hyper-parameter $\beta \in [0, 1]$ that decides between how much weight we want to put on either utility:
 
 $$
 \begin{align*}
@@ -121,6 +121,8 @@ And computationally it can be visualized as:
 
 Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`.
 
+We apply this RSA re-weighting process to every decoder step, which is called Incremental RSA, described in [^5]. In a seperate blog post, I will share how to write RSA computation as a modular component to add to any image captioning algorithm.
+
 ## Evaluating on Birds (CUB)
 
 Verifying whether we are successful at "controlling" the caption is difficult. We do have a question and an answer in VQA, but how do we determine if the answer is mentioned in the caption? Even for simple attributes like color, for example, "What color is the flower?" with an answer "red", what captions would satisfy our definition of "addressing the question"?
@@ -132,9 +134,25 @@ The first caption addresses the question (resolves the issue), but the second do
 
 We use CalTech-UC-San-Diego Bird Dataset (CUB-2011), which has 312 features of birds annotated for each image (11788 images in total), and since it's a restricted domain, these 312 features are exhaustive for each bird. These features include 26 body parts, such as "belly color", "bill length", etc. We can imagine that each body part can be the focus of one question: "What is the belly color of this bird?" and "What is the bill length of this bird"?
 
-We are able to build a simple keyword based classifier that can identify body part mentions in caption as well as attributes (modifiers) of these body parts. 
+We are able to build a simple keyword based classifier that can identify body part mentions in caption as well as attributes (modifiers) of these body parts. We use this classifier to evaluate our method to control caption generation. We refer to this as the "feature-in-text" classifier.
 
+Instead of using VQA, we use the feature matrix annotation as guide to select birds that share similar features (that describe the body parts) with the target image, and birds that don't share similar features. We show some generated captions below:
 
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_bird_ex.png?raw=true" style="width:100%"> <br> <span>Figure 7: Generated captions for CUB birds. Left bracket contains images that share the same feature (under discussion) as the target image. Right bracket contains images that don't.</span> </p>
+
+We begin by assessing the extent to which our issues ensitive pragmatic models produce captions that are more richly descriptive of the target image than a base neural captioner. For CUB, we can simply count how many attributes the caption specifies according to our feature-in-text classifier. More precisely, for each image and each model, we generate captions under all resolvable issues, concatenate those captions, and then use the feature-in-text classifier to obtain a list of attributes, which we can then compare to the ground truth for the image as given by the CUB dataset.
+
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_table1.png?raw=true" style="width:100%"> <br> <span>Table 1: Attribute coverage results. For each image, we counted how many attributes that are annotated in CUB are generated by each method.</span> </p>
+
+Table 1 reports on this evaluation. Precision for all models is very high; the underlying attributes in CUB are very comprehensive, so all high-quality captioners are likely to do well by this metric. In contrast, the recall scores vary substantially, and they clearly favor the issue-sensitive models, revealing them to be substantially more descriptive than $S_0$. 
+
+## Conclusion
+
+We defined the task of Issue-Sensitive Image Captioning (ISIC) and developed a Bayesian pragmatic model that allows us to address this task successfully using existing datasets and pretrained image captioning systems. We see two natural extensions of this approach that might be explored. 
+
+First, one might collect a dataset that exactly matched the structure of ISIC. This could allow for more free-form, naturalistic issues to arise, and would facilitate end-to-end training of models for ISIC. Such models could complement and extend the ones we can create using existing datasets and our issue-sensitive pragmatic captioning agents. 
+
+Second, one could extend our notion of issuesensitivity to other domains. As we saw in Figure 2, questions (as texts) naturally give rise to issues in our sense where the domain is sufficiently structured, so these ideas might find applicability in the context of question answering and other areas of controllable natural language generation.
 
 [^1]: Hu, Z., Yang, Z., Liang, X., Salakhutdinov, R., & Xing, E. P. (2017, August). Toward controlled generation of text. In Proceedings of the 34th International Conference on Machine Learning-Volume 70 (pp. 1587-1596). JMLR. org.
 [^2]: Lample, G., Subramanian, S., Smith, E., Denoyer, L., Ranzato, M. A., & Boureau, Y. L. (2018). Multiple-attribute text rewriting.

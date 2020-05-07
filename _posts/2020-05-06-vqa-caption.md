@@ -98,7 +98,7 @@ $$
 
 This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. In the RSA literature, this is often referred to as the QuD-RSA (QuD: Question-under-Discussion). If we visualize this process with actual probability numbers, here's the result:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
 
 As you can see, what we really did is just add up along the column for the original $L_1$ matrix, and then normalize over the row for the target image. This allows our RSA output to be issue-sensitive (question-aware). But wait wait wait, something is not right here! If you actually looked very closely at the $S_1^\mathbf{C}$ result, you'd realize what the RSA picked out is still wrong -- it would randomly choose between `skiing` and `mountain`. What the heck is going on?
 
@@ -117,13 +117,22 @@ $$
 
 And computationally it can be visualized as:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:80%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
+<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
 
 Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`.
 
 ## Evaluating on Birds (CUB)
 
-In order to evaluate whether our captions addressed the question, 
+Verifying whether we are successful at "controlling" the caption is difficult. We do have a question and an answer in VQA, but how do we determine if the answer is mentioned in the caption? Even for simple attributes like color, for example, "What color is the flower?" with an answer "red", what captions would satisfy our definition of "addressing the question"?
+
+> 1. There is a scarlett-colored flower.
+> 2. There is a red humming bird flying over a flower.
+
+The first caption addresses the question (resolves the issue), but the second doesn't (because "red" is modifying the bird, not the flower). This highlights the type of challenges we need to address for general domain image datasets such as MSCOCO and VQA. So, can we try an automated evaluation for a restricted domain? Turns out, yes.
+
+We use CalTech-UC-San-Diego Bird Dataset (CUB-2011), which has 312 features of birds annotated for each image (11788 images in total), and since it's a restricted domain, these 312 features are exhaustive for each bird. These features include 26 body parts, such as "belly color", "bill length", etc. We can imagine that each body part can be the focus of one question: "What is the belly color of this bird?" and "What is the bill length of this bird"?
+
+We are able to build a simple keyword based classifier that can identify body part mentions in caption as well as attributes (modifiers) of these body parts. 
 
 
 

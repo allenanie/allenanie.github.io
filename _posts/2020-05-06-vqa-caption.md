@@ -29,7 +29,7 @@ So the idea seems cool, but is this technologically possible? Remember, there is
 
 VQA style questions focus on three things: object, attribute of the object, relationship between objects. If we think more carefully about a useful representation of an image (let's say if we want an image to someone who can't see), we will describe the first picture in Figure 2 as "There's grass on the ground. The photo is captured through a net. There is a guy wearing orange jersey, white pants, and he's throwing a baseball. This guy is a pitcher. He's standing on a field". We can write this more structurally into a list, where we would list every object, its every attribute (color, weight, texture, etc.), and its relationship to other object in the picture. Needless to say, this list will be incredibly long and I personally doubt if it can ever be "exhaustive". 
 
-This is how we write down captions for each image -- we write down a small amount of features in the image that catch our attention. That is to say: human captions attempt to address an indeterminate question (or "all" questions). The captioning system learns to map features in an image to text with adherence to human grammar. To change the caption with respect to a question, what we mean is that we want the caption to reflect the particular feature the question is seeking. If the question is "What position is this man playing?", then the caption needs to mention a feature which is this guy's position (i.e., "pitcher"). 
+This is how we write down captions for each image -- we write down a small amount of features in the image that catch our attention. That is to say: human captions attempt to address an indeterminate question (or "all" questions). The captioning system learns to map features in an image to a grammatical sequence of words. To change the caption with respect to a question, what we mean is that we want the caption to reflect the particular feature the question is seeking. If the question is "What position is this man playing?", then the caption needs to mention a feature which is this guy's position (i.e., "pitcher"). 
 
 We show some preliminary success in Figure 2. By asking questions such as "what color is the sky", we control the image captioner to focus on the particular nature of this photo (that this is a black & white photo). Instead of describing what is the scene of the picture ("airplane taking off"), the caption model describes the meta-level information of this picture: ("a black and white photo of an airplane").
 
@@ -43,7 +43,7 @@ The Rational Speech Act (RSA) is a framework of Bayesian models for cognition an
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/police_lineup.jpg?raw=true" style="width:70%"> <br> <span>Source: New Yorker; University of Michigan, Law School. </span> </p>
 
-Here's the intuition on how RSA works. If you were asked to say a word to the police so that they can pick out number 5 (but you are not allowed to say numbers), you probably would not say "a man," nor would you say "khaki pants". The best word you can pick (assuming you are rational) is "baseball cap" because that uniquely identifies number 5. RSA is created to emulate this thought process -- when you have a group of images, you want to pick the word that best represents it (so that it's distinguishing the target image from the rest).
+Here's the intuition on what human thought process RSA is trying to capture. If you were asked to say a word to the police so that they can pick out number 5 (but you are not allowed to say numbers), you probably would not say "a man," nor would you say "khaki pants". The best word you can pick (assuming you are rational) is "baseball cap" because that uniquely identifies number 5. RSA is created to emulate this thought process -- when you have a group of images, you want to pick the word that best represents it (so that it's distinguishing the target image from the rest).
 
 The computational process for the simplest RSA model is through simple probability matrix normalization. In this formulation, a simplified version of our pre-trained image captioner model is $S_0(\mathbf{w} \vert \mathbf{i})$, a row-stochastic probability matrix (probabilities in a row sum up to 1) where the rows are "images", represented as a list of features, and the columns are the features we can pick to represent the image. How is this a captioning model? Well, you can imagine a captioning model that only produces one word (represented as an emoji in our schema).
 
@@ -123,7 +123,9 @@ Now the story for generating issue-sensitive (question-aware) captions is comple
 
 ## Evaluating on Birds (CUB)
 
-(TBD)
+In order to evaluate whether our captions addressed the question, 
+
+
 
 [^1]: Hu, Z., Yang, Z., Liang, X., Salakhutdinov, R., & Xing, E. P. (2017, August). Toward controlled generation of text. In Proceedings of the 34th International Conference on Machine Learning-Volume 70 (pp. 1587-1596). JMLR. org.
 [^2]: Lample, G., Subramanian, S., Smith, E., Denoyer, L., Ranzato, M. A., & Boureau, Y. L. (2018). Multiple-attribute text rewriting.

@@ -13,9 +13,13 @@ In the past two years, controlling generative models (such as GANs and VAEs) hav
 
 Despite such an impressive result, controlling generative models in text has been far more difficult. Limited successes have been achieved for properties like sentiment or tense (Hu et al.[^1]). Further work from Lample et al.[^2] leveraged the domain where the data are collected to add additional attributes such as gender, race, age, and interests (like music, book, movie, etc.), and trained a neural network from scratch conditioned on these attributes. However, for vagueness, politeness, genericness, sarcasm, humor, and formality, we have made little progress in developing neural network based decoding method to control these aspects of text. 
 
-In this post, we will focus on one: Question-under-Discussion (QuD). QuD is a formal linguistic model of discourse, first proposed in 1984. Informally, QuD Model suggests that for every sentence we write, there is a corresponding underlying question. For example, if I write "She ate the pasta.", the underyling QuD that made me write this sentence is "What did she eat?". QuD Model turns any paragraph of text into a self-conversation in a writer's head. 
+In this post, we will focus on one: Question-under-Discussion (QuD). When we communicate with each other, there is often an implicit question under discussion (hence the name). For example, when two strangers met, the QuD would often be "tell something about yourself", so people often start with self-introduction. However, instead of listing all the facts about oneself (starting from age, height), people also choose to communicate more relvant facts about themselves given the situation. In a blind date, people talk about their interests, income, attitudes towards starting a family, dating preferences etc. In a business metting, people talk about their professional history.
 
-Once a conversation (albeit with oneself) starts, communicative norms arise: we want to be topical, relevant, and succint. Imagine I start a paragraph with this sentence: "A few of us arrive at the classroom and the door is locked." What am I going to write next? 
+The QuD model has been formalized in 1984 as a model of discourse. It emphasizes on the fact that we communicate the state of the world **up to a partition**. The partition often refers to context (or in this case, the QuD that specifies the context).
+
+As a general discourse model, QuD model goes beyond simple conversation. It suggests that for every sentence we say or write, there is a corresponding underlying question; even for paragraphs of text that we write. QuD Model turns any paragraph of text into a self-conversation in a writer's head. 
+
+Here is an example, if I start with the sentence "A few of us arrive at the classroom and the door is locked." What should I write next? As you can see, QuD dictates how I write my next sentence. QuD decides what's relevant in this situation and what's not.
 
 | QuD                                 | Paragraph (next sentence in bold)                            |
 | ----------------------------------- | ------------------------------------------------------------ |
@@ -32,7 +36,7 @@ If we are able to achive this -- using a QuD (natural language question) to ask 
 
 So the idea seems fun, but is this technologically possible? Remember, there is no additional training involved. How can an image captioner that is only trained on image caption dataset be sensitive to questions from a VQA dataset? To answer this question, we need to rethink what question is and introduce Rational Speech Act (RSA)  framework. A more technical overview of this is described in my new paper with with Reuben Cohn-Gordon and Chris Potts[^6].
 
-## What is a Question?
+## QuD in Image Captioning
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/fig5_large.png?raw=true" style="width:120%"> <br> <span>Figure 2: Examples from applying our method to a SoTA 6-layer encoder-decoder Transformer with 55M parameters image captioner trained on the MS COCO dataset. The base caption shows what the Transformer originally would have outputted(last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. We can produce captions that try to address a question.</span> </p>
 

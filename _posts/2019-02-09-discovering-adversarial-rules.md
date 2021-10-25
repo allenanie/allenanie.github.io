@@ -17,7 +17,7 @@ In the second post, we will focus on this paper:
 
 When we increasingly become reliant on a type of technology -- suspension bridges, nuclear power, or in this case: NLP models, we must raise the level of trust we have in this technology. Robustness is precisely the requirement we need to place on such systems.
 
-<p style="text-align: center"><img src="https://upload.wikimedia.org/wikipedia/en/2/2e/Image-Tacoma_Narrows_Bridge1.gif" style="width:50%"></p>
+<p style="text-align: center"><img src="https://media.giphy.com/media/ncHaTrUoJtwWc/giphy.gif" style="width:50%"></p>
 
 Early work from Jia & Liang (2017)[^1] shows that NLP models are not immune to small negligible-by-human perturbation in text -- a simple addition or deletion can break the model and force it to produce nonsensical answers. Other work such as Belinkov & Bisk [^2], Ebrahimi et al.[^3] showed a systematic perturbation that is to simply drop or replace a character is sufficient to break a model. Introducing noise to sequence data is not always bad: ealier work done by Xie et al.[^4] shows that training machine translation or language model with word/character-level perturbation (noising) actually improves performance.
 

@@ -77,9 +77,7 @@ Since this process is applied for every pair of $(x, x')$, and if we assume huma
 
 To satisfy criteria 2 and 3, Ribeiro et al. proposed a submodular optimization objective, which can be solved with a greedy algorithm with a theoretical guarantee to a constant factor off of the optimum.
 
-$$
-\max_{R, |R| <B} \sum_{x \in X} \max_{r \in R} S(x, r(x)) \text{SEA}(x, r(x))
-$$
+$\max_{R, |R| <B} \sum_{x \in X} \max_{r \in R} S(x, r(x)) \text{SEA}(x, r(x))$
 
 The overall algorithm is described below:
 

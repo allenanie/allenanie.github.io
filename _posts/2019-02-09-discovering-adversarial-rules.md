@@ -33,9 +33,7 @@ In our discussion, people point out that from a linguistic point of view, it is 
 
 Ribeiro et al. argue that only a sequence that satisfies both conditions is a true adversarial example in text.  They translate this criteria into a conjunctive form using an indicator function:
 
-$$
-\text{SEA}(x, x') = \unicode{x1D7D9}[\text{SemEq}(x, x') \wedge f(x) \not= f(x')] \label{1}
-$$
+$\text{SEA}(x, x') = \unicode{x1D7D9}[\text{SemEq}(x, x') \wedge f(x) \not= f(x')] \label{1}$
 
 In this paper, semantic equivalence is measured by the likelihood of paraphrasing, defined in multilingual multipivot paraphrasing paper from Lapata et al. (2017)[^6]. Pivoting is a technique in statistical machine translation proposed by Bannard and Callison-Burch (2005)[^7]: if two English strings $e_1$ and $e_2$ can be translated into the same French string $f$, then they can be assumed to have the same meaning.
 
@@ -47,18 +45,15 @@ The pivot scheme is depicted by the generative model on the left, which assumes 
 
 Assuming the unnormalized logit from the paraphrasing model is $\phi(x' \vert x)$, and suppose $\prod\_x$ is the set of paraphrases that the model could generate given $x$, then the probability of a particular paraphrase can be written as below:
 
-$$
-p(x'|x) = \frac{\phi(x'|x)}{\sum_{i \in \prod_x} \phi(i|x)} \\
-$$
+$p(x'|x) = \frac{\phi(x'|x)}{\sum_{i \in \prod_x} \phi(i|x)}$
 
 Note in the denominator, all sentences being generated (including generating the original sentence) share the probability mass. If a sentence has many easy-to-generate paraphrases (indicated by high $\phi$ value), then $p(x \vert x)$ will be small, as well as all other $p(x' \vert x)$. Dividing $p(x' \vert x)$ by $p(x \vert x)$ will get a large value (closer to 1). As for a sentence that is difficult to paraphrase, $p(x \vert x)$ should be rather large compared to $p(x' \vert x)$, then this ratio will provide a much smaller value.  
 
 Based on this intuition, Ribeiro et al. proposed to compute a semantic score $S(x, x')$ as a measure of the paraphrasing quality:
 
-$$
-S(x, x') = \min(1, \frac{p(x'|x)}{p(x|x)}) \\
-\text{SemEq}(x, x') = \unicode{x1D7D9}[S(x, x') \geq \tau]
-$$
+$S(x, x') = \min(1, \frac{p(x'|x)}{p(x|x)})$
+
+$\text{SemEq}(x, x') = \unicode{x1D7D9}[S(x, x') \geq \tau]$
 
 A simple schema to generate adversarial sentences that satisfy the Equation 1 is: ask the paraphrase model to generate paraphrases of a sentence $x$. Try these paraphrases if they can change the model prediction: $f(x') \not = f(x)$. 
 

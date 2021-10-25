@@ -9,11 +9,11 @@ title: >-
 ---
 (Originally written for the Stanford NLP Blog)
 
+Robustness is a central concern in engineering. Our suspension bridges need to stand against strong wind and so it won't collapse like the Tacoma Narrows Bridge [[video](https://commons.wikimedia.org/w/index.php?title=File%3ATacoma_Narrows_Bridge_destruction.ogv)]. Our nuclear reactors need to be highly fault tolerant so that Fukushima Daiichi incident won't happen in the future [[link](https://en.wikipedia.org/wiki/Fukushima_Daiichi_nuclear_disaster)].
+
 In the second post, we will focus on this paper:
 
 > Ribeiro, Marco Tulio, Sameer Singh, and Carlos Guestrin. "[Semantically equivalent adversarial rules for debugging nlp models](http://aclweb.org/anthology/P18-1079)." *Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)*. Vol. 1. 2018.
-
-Robustness is a central concern in engineering. Our suspension bridges need to stand against strong wind and so it won't collapse like the Tacoma Narrows Bridge [[video](https://commons.wikimedia.org/w/index.php?title=File%3ATacoma_Narrows_Bridge_destruction.ogv)]. Our nuclear reactors need to be highly fault tolerant so that Fukushima Daiichi incident won't happen in the future [[link](https://en.wikipedia.org/wiki/Fukushima_Daiichi_nuclear_disaster)].
 
 When we increasingly become reliant on a type of technology -- suspension bridges, nuclear power, or in this case: NLP models, we must raise the level of trust we have in this technology. Robustness is precisely the requirement we need to place on such systems.
 

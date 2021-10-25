@@ -1,11 +1,13 @@
 ---
 published: true
 layout: post
-draft: true
+draft: false
 visible: 0
-title: Reading Group Blog -- Semantically Equivalent Adversarial Rules for Debugging NLP Models (ACL 2018)
+title: >-
+  Reading Group Blog -- Semantically Equivalent Adversarial Rules for Debugging
+  NLP Models (ACL 2018)
 ---
-Allen Nie 02/12/2019
+(Originally written for the Stanford NLP Blog)
 
 In the second post, we will focus on this paper:
 
@@ -137,10 +139,3 @@ This paper provides a clear framework and proposes clear properties that adversa
 [^5]:Goodfellow, Ian J., Jonathon Shlens, and Christian Szegedy. "Explaining and harnessing adversarial examples (2014)." *arXiv preprint arXiv:1412.6572*.
 [^6]:Mallinson, Jonathan, Rico Sennrich, and Mirella Lapata. "Paraphrasing revisited with neural machine translation." *Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics: Volume 1, Long Papers*. Vol. 1. 2017.
 [^7]:Colin Bannard and Chris Callison-Burch. 2005. Paraphrasing with bilingual parallel corpora. In Proceedings of the 43rd Annual Meeting of the Association for Computational Linguistics, pages 597–604, Ann Arbor, Michigan.
-
-
-
-
-
-
-

@@ -1,7 +1,6 @@
 ---
 published: true
 layout: post
-draft: false
 title: Using Visual Question Answering to Generate Issue-Sensitive Captions
 ---
 

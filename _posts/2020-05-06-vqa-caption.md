@@ -2,7 +2,7 @@
 published: true
 layout: post
 draft: true
-title: "Using Visual Question Answering to Generate Issue-Sensitive Captions"
+title: Using Visual Question Answering to Generate Issue-Sensitive Captions
 ---
 
 ## Preface

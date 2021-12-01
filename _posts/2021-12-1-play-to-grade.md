@@ -5,6 +5,8 @@ draft: true
 title: Grading Complex Interactive Coding Programs with Reinforcement Learning
 ---
 
+[[paper]](https://arxiv.org/abs/2110.14615)
+
 **Summary (TL;DR):** understanding student code is hard, playing a game is easy. In our recent NeurIPS 2021 [paper](https://arxiv.org/abs/2110.14615), we reformulate homework grading as game play and introduce the Play to Grade Challenge.
 
 Massive Online Coding Education has reached striking success over the past decade. Enabled by the fast internet speed, improved UI design (especially with code editors embedded in a browser window), and designing of a diverse set of courses tailored towards students of different coding experiences and interest levels (i.e., "Star War-themed coding challenge," "Elsa/Frozen themed for-loop writing"), non-profit organizations such as [Code.org](http://code.org/) is able to create online coding challenges that reach 60 millions of students in the US and around the world.

@@ -36,6 +36,7 @@ However, it has been quite difficult to optimize with these hard constraints. Ty
 
 
 <pre>
+\begin{equation*}
 \begin{bmatrix}
     \nabla^2f(x)  & A \\
     A & 0
@@ -48,6 +49,7 @@ However, it has been quite difficult to optimize with these hard constraints. Ty
     - \nabla f(x) \\
     0
   \end{bmatrix}
+\end{equation*}
 </pre>
 
 

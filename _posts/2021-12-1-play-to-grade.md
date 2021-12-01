@@ -2,9 +2,8 @@
 published: true
 layout: post
 draft: true
+title: Grading Complex Interactive Coding Programs with Reinforcement Learning
 ---
-
-# Grading Complex Interactive Coding Programs with Reinforcement Learning
 
 **Summary (TL;DR):** understanding student code is hard, playing a game is easy. In our recent NeurIPS 2021 [paper](https://arxiv.org/abs/2110.14615), we reformulate homework grading as game play and introduce the Play to Grade Challenge.
 

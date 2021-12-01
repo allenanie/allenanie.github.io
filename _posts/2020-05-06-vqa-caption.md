@@ -4,7 +4,7 @@ layout: post
 title: Using Visual Question Answering to Generate Issue-Sensitive Captions
 ---
 
-
+[[Paper]](https://arxiv.org/abs/2004.14451)
 
 In the past two years, controlling generative models (such as GANs and VAEs) have been widely studied in the Computer Vision literature. The idea is that once these large capacity neural network models learn the data manifold of millions of images, it has internalized some knowledge about the world. The "knowledge" learned is often in the form of abstract concepts such as "skin tone", "hair style" from faces, or "brightness", "rotation angles" for general images. We can then explicitly control images generated from GAN or VAE with respect to these abstract concepts through some post-training manipulations.
 

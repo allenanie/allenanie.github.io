@@ -4,7 +4,7 @@ layout: post
 title: Using Visual Question Answering to Generate Issue-Sensitive Captions
 ---
 
-## Preface
+
 
 In the past two years, controlling generative models (such as GANs and VAEs) have been widely studied in the Computer Vision literature. The idea is that once these large capacity neural network models learn the data manifold of millions of images, it has internalized some knowledge about the world. The "knowledge" learned is often in the form of abstract concepts such as "skin tone", "hair style" from faces, or "brightness", "rotation angles" for general images. We can then explicitly control images generated from GAN or VAE with respect to these abstract concepts through some post-training manipulations.
 
@@ -67,21 +67,21 @@ The process described in Figure 3 is extremely simple but captures the process o
 
 More formally, these two computations can be described as:
 
-$$
+
 \begin{align*}
 L_1(\mathbf{i}|\mathbf{w}) &= \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{P(\mathbf{w})} = \frac{S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})}{\sum_{i \in \mathcal{I}} S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i})} \\
 S_1(\mathbf{w}|\mathbf{i}) &= \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{P(\mathbf{i})} = \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{\sum_{w \in \mathcal{V}} L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})} \\
 \end{align*}
-$$
+
 
 In RSA books/papers, you often see the simplified version (skipping the normalization constant):
 
-$$
+
 \begin{align*}
 L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
 S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
 \end{align*}
-$$
+
 
 More detailed tutorial of RSA can be found in [here](https://www.problang.org/). 
 

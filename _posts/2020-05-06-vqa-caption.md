@@ -77,10 +77,10 @@ S_1(\mathbf{w}|\mathbf{i}) &= \frac{L_1(\mathbf{i}|\mathbf{w}) P(\mathbf{w})}{P(
 In RSA books/papers, you often see the simplified version (skipping the normalization constant):
 
 
-$$\begin{align*}
+<pre>\begin{align*}
 L_1(\mathbf{i}\vert\mathbf{w}) &\propto S_0(\mathbf{w}|\mathbf{i}) P(\mathbf{i}) \\
 S_1(\mathbf{w}\vert\mathbf{i}) &\propto L_1(\mathbf{i}|\mathbf{w})P(\mathbf{w})
-\end{align*}$$
+\end{align*}</pre>
 
 
 More detailed tutorial of RSA can be found in [here](https://www.problang.org/). 
@@ -101,12 +101,12 @@ OK. We ran into a problem: even though our VQA model **partitioned 6 images into
 
 Luckily, a solution has already been worked out by Kao et al. [^7] The idea is pretty simple, why not just add up the probability within the cell (across the column) after computing $L_1$ probability matrix? More formally, this corresponds a different $S_1$: 
 
-$$
+<pre>
 \begin{align*}
 U_1^{\mathbf{C}}(\mathbf{i}, \mathbf{w}, \mathbf{C}) &= \log \Big( \sum_{\mathbf{i}' \in \mathcal{I}}\delta_{\mathbf{C}(\mathbf{i})=\mathbf{C}(\mathbf{i}')} L_1(\mathbf{i}'|\mathbf{w}) \Big) \\
 S_1^{\mathbf{C}}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \big(\alpha U_1^{\mathbf{C}}(\mathbf{i}, \mathbf{w}, \mathbf{C}) - \text{cost}(\mathbf{w}) \big)
 \end{align*}
-$$
+</pre>
 
 This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. In the RSA literature, this is often referred to as the QuD-RSA (QuD: Question-under-Discussion). If we visualize this process with actual probability numbers, here's the result:
 
@@ -120,12 +120,12 @@ This last ingredient allows us to add a pressure to $S_1$ to select items that a
 
 More formally, we can write it out to combine both $U_1$ and $U_2$, with a balancing hyper-parameter $\beta \in [0, 1]$ that decides between how much weight we want to put on either utility:
 
-$$
+<pre>
 \begin{align*}
 U_2(\mathbf{i}, \mathbf{w}, \mathbf{C}) &= H(L_1(\mathbf{i}'|\mathbf{w}) \cdot \delta_{\mathbf{C}(\mathbf{i})=\mathbf{C}(\mathbf{i}')}) \\
 S_1^{\mathbf{C}+H}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \big( \alpha ((1-\beta)U_1 + \beta U_2) -\text{cost}(\mathbf{w}) \big)
 \end{align*}
-$$
+</pre>
 
 And computationally it can be visualized as:
 

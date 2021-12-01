@@ -84,7 +84,9 @@ Let's look back to the first equation: we can formulate its Lagrangian as:
 
 
 <pre>
+\begin{equation*}
 L(x, \lambda, \nu) = f_0(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x)
+\end{equation*}
 </pre>
 
 
@@ -102,7 +104,9 @@ We first must get rid of the effect of $x$. Since we want to minimize the new ob
 
 
 <pre>
+\begin{equation*}
 g(\lambda, \nu) = \inf_{x \in D} L(x, \lambda, \nu) = \inf_{x \in D} \Big(f_0(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x) \Big)
+\end{equation*}
 </pre>
 
 

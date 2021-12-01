@@ -14,7 +14,7 @@ This is an article providing another perspective on understanding Lagrangian and
 In convex optimization, unlike other fields of machine learning, we can add constraints. Convex problems have a form of the following:
 
 
-$$
+<pre>
 \begin{equation*}
 \begin{aligned}
 & \text{minimize}
@@ -27,7 +27,7 @@ $$
 \end{equation*}
 \tag{1}
 \label{original}
-$$
+</pre>
 
 
 We define $f_i(x)​$ being convex functions, and $h_i(x)​$ being affine functions. If you are  familiar with convex optimization or other optimization problem, this formula should look familar. The constraints listed under `subject to` are considered **hard** constraints, and those constraints do not normally appear in traditonal machine learning cost functions. One way to distinguish them is that, cost functions in Machine Learning does not need to have a realistic meaning (objective can be an abstract measurement of progress), where in convex optimization, objective is something you want to find (like how much fuel the rocket will need).
@@ -37,7 +37,7 @@ We define $f_i(x)​$ being convex functions, and $h_i(x)​$ being affine funct
 However, it has been quite difficult to optimize with these hard constraints. Typical methods include solving for a Newton step:
 
 
-$$
+<pre>
 \begin{bmatrix}
     \nabla^2f(x)  & A \\
     A & 0
@@ -50,7 +50,7 @@ $$
     - \nabla f(x) \\
     0
   \end{bmatrix}
-$$
+</pre>
 
 
 Solving for $\Delta x_{nt}$ and we get our central-path (feasible) Newton method of satisfying equality constraint as well as optimizing our overall objective. As to why it has such effect, refer to the book.
@@ -60,7 +60,7 @@ Solving for $\Delta x_{nt}$ and we get our central-path (feasible) Newton method
 As to satisfy the inequality constraint, we can use **barrier method**, which adds the inequality constraints as a logarithmic barrier, so instead of optimizing the original problem, we can have:
 
 
-$$
+<pre>
 \begin{equation*}
 \begin{aligned}
 & \text{minimize}
@@ -69,7 +69,7 @@ $$
 & & h_i(x) = 0, \; i = 1, \ldots, p.
 \end{aligned}
 \end{equation*}
-$$
+</pre>
 
 
 The logarithmic barrier punishes the objective logarithmically when it's approaching 0 from the negative side.
@@ -83,11 +83,11 @@ So what do those two "implementation" details have to do with Lagrangian? The re
 Let's look back to equation $\ref{original}$: we can formulate its Lagrangian as: 
 
 
-$$
+<pre>
 L(x, \lambda, \nu) = f_0(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x)
 
 \tag{2}
-$$
+</pre>
 
 
 Now it's as if we are telling the God of optimization that, you can go ahead and violate our constraints as much as you can, and we are going to introduce two new variables $\lambda$ and $\nu$ to help you do that. These two variables are called dual variables. $\lambda$ is referred as inequality constraint dual variable, and not surprisingly $\nu$ is the equality constraint dual variable. 
@@ -103,15 +103,15 @@ After all these long and tedious definition of things (hopefully you aren't too 
 We first must get rid of the effect of $x$. Since we want to minimize the new objective (the Lagrangian), we can use the operator **inf**, it can give us the minimum value of the function over a chosen variable, and in here we choose $x$:
 
 
-$$
+<pre>
 g(\lambda, \nu) = \inf_{x \in D} L(x, \lambda, \nu) = \inf_{x \in D} \Big(f_0(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x) \Big)
-$$
+</pre>
 
 
 By doing this, we reduce the first term $f_0(x)$, $f_i(x)$, and $h_i(x)$ to constants, and the infimum over a family of affine functions is a concave function (go through chapter 2 of the convex book for more details on this). Thus our dual objective is concave. Then we can quite awesomely form the following dual problem:
 
 
-$$
+<pre>
 \begin{equation*}
 \begin{aligned}
 & \text{maximize}
@@ -120,7 +120,7 @@ $$
 & & \lambda \succeq 0
 \end{aligned}
 \end{equation*}
-$$
+</pre>
 
 A nicer understanding of this is that: by fixing $x$ (we shall now call it **primal** variable out of no reason…it's actually to draw contrast to dual variables), we are driving the Lagrangian's value down (as well as $f_0(x)$'s value), however, we must be violating constraints! So now, maybe it's the time for the constraints to punish our objective, and we want the penalty to be as **high** as possible. Thus, by maximizing $g(\lambda, \nu)$, we can figure out a set of values for $\lambda$ and $\nu$ that will make the penalty as **large** as possible for the Lagrangian objective, hence the maximizing over $\lambda$ and $\nu$ on function $g$. 
 
@@ -136,7 +136,7 @@ We begin with the simplest example (as many explaination would start). You can e
 
 
 
-$$
+<pre>
 \begin{equation*}
 \begin{aligned}
 & \text{minimize}
@@ -145,13 +145,13 @@ $$
 & & h(x) = 0
 \end{aligned}
 \end{equation*}
-$$
+</pre>
 
 We form the following Lagrangian: $L(x, \nu) = f(x) + \nu h(x)$. Notice the condition of optimality for the original problem is when $\nabla f(x) = 0$, and the optimality condition for the new Lagrangian is seemingly changed: $\nabla f(x) + \nu \nabla h(x) = 0$. We ask the question: will the change in optimality condition affect us from reaching the same goal (objective) as the original objective?  
 
 
 
-![lagrangian_post_fig1](http://anie.me/images/lagrangian_post_fig1.png)
+<figure class="image"><a href="http://anie.me/images/lagrangian_post_fig1.png"><img src="http://anie.me/images/lagrangian_post_fig1.png"/></a></figure>
 
 
 
@@ -162,7 +162,7 @@ From the Lagrangian optimality condition, we can easily get $\nabla f(x) = -\nu 
 We get slightly more interesting result from examining the inequality constraint case. We can see the rise of KKT conditions and complementary slackness (two concepts that are often hard to grasp as first-timers) from the seemingly discordance between the original and Lagrangian optimality conditions. 
 
 
-$$
+<pre>
 \begin{equation*}
 \begin{aligned}
 & \text{minimize}
@@ -171,13 +171,13 @@ $$
 & & g(x) \leq 0
 \end{aligned}
 \end{equation*}
-$$
+</pre>
 
 
 We formulate the simplest convex problem with one inequality constraint. The Lagrangian is $L(x, \lambda) = f(x) + \lambda g(x)$. The optimality condition for Lagrangian is $\nabla f(x) + \lambda \nabla g(x) = 0$. Now this case is slightly different from the equality case. We should first take a look at an illustration:
 
-![lagrangian_post_fig2](http://anie.me/images/lagrangian_post_fig2.png)
 
+<figure class="image"><a href="http://anie.me/images/lagrangian_post_fig2.png"><img src="http://anie.me/images/lagrangian_post_fig2.png"/></a></figure>
 
 
 The shaded area including the surface when $g(x) = 0$ are the regions $x$ is allowed to be, satisfying our constraint. Like before, we can slightly reformulate the optimality condition to be: $\nabla f(x) = - \lambda \nabla g(x)$. We consider two cases. First, when $x$ is on the surface of $g(x) = 0$, meaning $x$ is on the boundary condition. When this is the case, it can only happen if $\nabla f(x)$ and $\nabla g(x)$ are pointing at opposite directions (notice gradient vector always points at the direction that increases function values), our desired direction is $-\nabla f(x)$. If not, meaning $\nabla f(x)$ and $\nabla g(x)$ are pointing at the same direction, all we need to do is to go to direction $-\nabla f(x)$, and we will decrease primal objective value as well as decreasing the value of $g(x)$, staying within $g(x) \leq 0$. To conclude, in order to have inequality constraint working, we must specify $\lambda > 0$. 
@@ -216,11 +216,11 @@ Another fun fact is that, dual variables $\lambda$ and $\nu$, if KKT conditions 
 At last, we briefly mention sensitivity analysis. This portion was presented in a very confusing manner from the book (including powerpoint slides). If we take derivative of the Lagrangian with respect to the constraint:
 
 
-$$
+<pre>
 \lambda_i = - \frac{\partial g(\lambda^\star, \nu^\star)}{\partial f_i}
 \text{,     }
 \nu_i = - \frac{\partial g(\lambda^\star, \nu^\star)}{\partial h_i}
-$$
+</pre>
 
 
 Notice that we are taking derivative of $g(\lambda^\star, \nu^\star)$. So the dual variable is the partial derivative of dual objective with respect to the constraints. Based on what we've learned from the last section, it's not too difficult to reason that if $\lambda_i = 0$, the $i$ th inequality constraint is not constraining the objective. The larger $\lambda$ or $\nu$ is, the more constraining such constraint will be, a small change to tighten the constraint will cause a negative effect on the overall objective.

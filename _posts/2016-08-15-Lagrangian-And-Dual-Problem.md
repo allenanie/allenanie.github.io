@@ -219,9 +219,11 @@ At last, we briefly mention sensitivity analysis. This portion was presented in 
 
 
 <pre>
+\begin{equation*}
 \lambda_i = - \frac{\partial g(\lambda^\star, \nu^\star)}{\partial f_i}
 \text{,     }
 \nu_i = - \frac{\partial g(\lambda^\star, \nu^\star)}{\partial h_i}
+\end{equation*}
 </pre>
 
 

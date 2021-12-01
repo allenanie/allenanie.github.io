@@ -25,8 +25,6 @@ In convex optimization, unlike other fields of machine learning, we can add cons
 & & h_i(x) = 0, \; i = 1, \ldots, p.
 \end{aligned}
 \end{equation*}
-\tag{1}
-\label{original}
 </pre>
 
 
@@ -80,13 +78,11 @@ So what do those two "implementation" details have to do with Lagrangian? The re
 
 
 
-Let's look back to equation $\ref{original}$: we can formulate its Lagrangian as: 
+Let's look back to the first equation: we can formulate its Lagrangian as: 
 
 
 <pre>
 L(x, \lambda, \nu) = f_0(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x)
-
-\tag{2}
 </pre>
 
 

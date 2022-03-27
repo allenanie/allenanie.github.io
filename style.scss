@@ -564,3 +564,112 @@ table tr th {
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
 @import "highlights";
 @import "svg-icons";
+
+// from SAIL-blog
+.postimage {
+  width: 100%;
+  height: auto;
+  margin: auto;
+}
+
+.postimage_unpadded {
+  width: 100%;
+  height: auto;
+  margin: auto;
+  padding: 0;
+}
+
+.postimagesmall {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  height: auto;
+}
+
+.postimageactual {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  height: auto;
+}
+
+.postimagesmaller {
+  width: 75%;
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  height: auto;
+}
+
+.postimage_75 {
+  width: 75%;
+  display:block;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.postimage_50 {
+  width: 50%;
+  display:block;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.postimage_25 {
+  width: 25%;
+  display:block;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.postimagehalf {
+  width: 49%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 1%;
+}
+
+.postimagethird {
+  width: 30%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 1%;
+}
+
+.postimagequarter {
+  width: 24%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.postfigurehalf {
+  width: 49%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 1%;
+  display: inline-block;
+}
+
+.postfigurethird {
+  width: 30%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 1%;
+  display: inline-block;
+}
+
+.postfigurequarter {
+  width: 24%;
+  height: auto;
+  margin-left:auto;
+  margin-right:auto;
+  display: inline-block;
+}

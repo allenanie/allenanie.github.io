@@ -99,10 +99,12 @@ p(c \vert w) &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1}
 
 Now we have two expressions of $p(c \vert w)$. We can match the terms between two equations, one term $c^TB^{-1}c$ already appears in both, but not $-2 v_w \cdot c$. However, there are two terms with negative signs in the top expansion. A trick that applies here is to just make them equal and hope things to work out -- we solve for $\mu$:
 
+<pre>
 $$
 -2 v_w \cdot c = - c^TB^{-1}\mu - \mu^TB^{-1}c \\
 -2 v_w \cdot c = -2 \mu^T B^{-1}c
 $$
+</pre>
 
 It is somewhat transparent that on the RHS (right hand side), $B$ needs to disappear since the LHS (left hand side) does not contain any $B$. To do that, $\mu$ should at least contain $B$ so that it cancels out with $B^{-1}$. Also the LHS has $v_w$ while RHS has none. Then the answer should be apparent: $\mu = Bv_w$. If you plug this in, the above equality works, shows that this is our $\mu$. 
 
@@ -112,19 +114,23 @@ So now, we know that $c \vert w \sim \mathcal{N}(B^{-1}v_w, B)$ where $B = (\Sig
 
 <p>Then we want to get the pdf that describes $c|w_1, ..., w_n​$. This part is relatively straightforward, no algebra trick / insight is required. The work mostly hinges on the following expression: </p>
 
+<pre>
 $$
 p(c \vert w_1, ..., w_n) \propto p(w_1,...,w_n \vert c) p(c) \propto p(c) \prod_{i=1}^n p(w_i \vert c) \\
 = \frac{1}{Z^n} \exp(\sum_{i=1}^n v_{w_i}^Tc - \frac{1}{2} c^T(\Sigma^{-1} + 2nI)c)
 $$
+</pre>
 
 <p>The generation of words are independent with each other conditioned on $c​$. We already know the expression of $p(w \vert c)​$. So the above equation evaluates to a form that we have already worked out before. We can skip the algebra and know that $\mathbb{E}[c \vert w_1, ..., w_n] \approx (\Sigma^{-1} + 2nI)^{-1} \sum_{i=1}^n v_{w_i}​$.</p>
 
 If you still recall the LHS and RHS of the Equation (1), then what we have left to conclude the proof is to plug  what we have derived into the LHS and RHS. Feel free to refer to the paper since it offers a cleaner/shorter presentation.
 
+<pre>
 $$
 \mathbb{E}[c_s \vert w \in s] = \mathbb{E}[\mathbb{E}[c_s \vert s = w_1...w...w_n \vert w \in s]] \\
  (\Sigma^{-1} + 2I)^{-1} v_w \approx (\Sigma^{-1} + 2nI)^{-1} \sum_{i=1}^n v_{w_i}
 $$
+</pre>
 
 Therefore, we know that the matrix $A$ that we set out to find is now solvable by re-arranging the terms in above equations: $A = n(\Sigma^{-1} + 2I) (\Sigma^{-1} + 2nI)^{-1}$.
 
@@ -139,9 +145,12 @@ Therefore, we know that the matrix $A$ that we set out to find is now solvable b
 The last choice is to do monte carlo estimation on the Theorem 1's original equation: $v\_w \approx A \mathbb{E}(\frac{1}{n} \sum_{w_i \in s} v\_{w_i} \vert w \in s)$, replace the expectation with sampling over window $s$ and sampling over word $w$, and find $A$ as a linear regression problem. This is also the method the original paper has chosen.
 
 If we suppose that $u$ is the averaged discourse vectors for word $w$, then iterating through the vocabulary, we should be able to find matrix $A$ by solving the following optimization:
+
+<pre>
 $$
 \arg\min_A \sum_w \| A u_w - v_w \|_2^2
 $$
+</pre>
 
 The paper tried to fit GloVe embeddings using linear transformation and use SIF[^5] to generate context vector $c\_w$. As we can see the practical fit is good in Table 2.
 
@@ -155,9 +164,11 @@ Since we do not observe the frequency ($\alpha$, $\beta$), nor do we know how ma
 
 Sparse coding objective and description can be found in the paper, overall, given a set of word vectors, two integers k, m with k << m, find a set of unit vectors $A\_1, ...,A\_m$ such that:
 
+<pre>
 $$
 v_w = \sum_{j=1}^m \alpha_{w,j}A_j + \eta_w
 $$
+</pre>
 
 where at most k of the coefficients $\alpha$ are nonzero.  The goal is to minimize the reconstruction error term $\sum\_w \eta\_w$.
 

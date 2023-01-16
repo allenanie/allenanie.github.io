@@ -30,7 +30,9 @@ $$
 The probability of a word $w_i$ occur in the sequence can be described as a log-linear model:
 
 <pre>
+$$
 P(w_i \vert c) = \frac{\exp(c \cdot v_{w_i})}{Z_c}
+$$
 </pre>
 
 Note that $v_{w_i}$ indicates the actual vector representation of $w_i$, and this probability model uses dot-product distance to capture the probability of word $w_i$ appear in the sequence, normalized by a partition function $Z_c = \sum_w \exp(v_w \cdot c)$. This dictates that the discourse vector $c$ will be close to words it produces in vector space.
@@ -44,13 +46,18 @@ Theorem 1 of Arora et al. (2018)[^3] paper can be understood by introducing a ve
 For this word $w$, it must appear in different spans of words across the entire document. A random variable of a window of $n$ words can be introduced as $s$, a span. Computationally, the vector $u$ for the word $w$ can be computed as follow:
 
 <pre>
+$$
 u = \frac{1}{k} \sum_{s \in \{s_1, ..., s_k\}} \frac{1}{n} \sum_{w_i \in s} v_{w_i}
+$$
 </pre>
 
 To even make this statement simpler, assume the above figure represents a tensor $S \in \mathcal{R}^{n \times k \times d}$, we can easily run the following Numpy operation to obtain $u$: `u = np.mean(np.mean(S, axis=0), axis=1)`. After knowing how $u$ is computed, then we can understand Theorem 1:
+
+<pre>
 $$
 v_w = A u
 $$
+</pre>
 
 For any word, if we compute the corresponding vector $u$, the word embedding of this word can be obtained through a linear transformation (matrix multiplication) by a fixed matrix $A$. I provide some algebra walk through the proof of Theorem 1 in the paper. Readers who find it elementary or advanced can skip this block straight to the next section. 
 

@@ -65,13 +65,13 @@ For any word, if we compute the corresponding vector $u$, the word embedding of 
 
 The proof stands as long as the generative model in Figure 1 holds. We set to show that $v\_w \approx A \mathbb{E}(\frac{1}{n} \sum_{w_i \in s} v\_{w_i} \vert w \in s)$. By "iterated expectation" or "law of total expectation", we can expand the $\mathbb{E}[c\_s \vert w \in s]$ as:
 
-$$
+<pre>
 \begin{equation}
 \mathbb{E}[c_s \vert w \in s] = \mathbb{E}[\mathbb{E}[c_s \vert s = w_1...w...w_n \vert w \in s]]
 \label{first-eq}
 \tag{1}
 \end{equation}
-$$
+</pre>
 
 The following step is to find the probability density function (pdf) of $c \vert w$: $p(c \vert w)$. In the earlier portion of the paper, we have the following equalities that we can substitute: $Z\_c \approx Z \exp(\|c \|^2)$[^4], the probability density function of a multivariate normal distribution $c \sim (0, \Sigma)$ is $p(c) = \exp(-\frac{1}{2} c^T \Sigma^{-1}c)$, $\| c \|^2 = c^Tc = c^T I c$, and the log-linear model we assumed: $p(w \vert c) = \exp(c \cdot v\_w)$. We can expand $p(c\vert w)$ using Bayes rule and substitute these terms in and obtain:
 

@@ -171,9 +171,7 @@ Each assumption has some flaws. Assumption (1) assumes a very simplistic model o
 Assumption (2) is a very serious offense for syntax in language. Words definitely depend on one another -- grammatical structure naturally emerges from word-to-word dependencies. `The drink is cold`, the choice of `is` is clearly influenced by the plurality of the subject. However, if we drop this assumption, we won't be able to get the following factorization:
 
 $$
-\begin{align}
  p(w_1,...,w_n \vert c) \propto \prod_{i=1}^n p(w_i \vert c)
-\end{align}
 $$
 
 Instead, what we get is:

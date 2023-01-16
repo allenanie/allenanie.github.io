@@ -25,14 +25,12 @@ $$
 P(w_1, w_2, ..., w_n \vert c) = \prod_{i=1}^n P(w_i \vert c)
 $$
 </pre>
-
 The probability of a word $w_i$ occur in the sequence can be described as a log-linear model:
 <pre>
 $$
 P(w_i \vert c) = \frac{\exp(c \cdot v_{w_i})}{Z_c}
 $$
 </pre>
-
 Note that $v_{w_i}$ indicates the actual vector representation of $w_i$, and this probability model uses dot-product distance to capture the probability of word $w_i$ appear in the sequence, normalized by a partition function $Z_c = \sum_w \exp(v_w \cdot c)$. This dictates that the discourse vector $c$ will be close to words it produces in vector space.
 
 Based on this very simple model, a very interesting theorem can be proved. Here, I write out the actual proof (with more details than the one provided in the paper, as well as an easy illustration on what's going on).
@@ -47,14 +45,12 @@ $$
 u = \frac{1}{k} \sum_{s \in \{s_1, ..., s_k\}} \frac{1}{n} \sum_{w_i \in s} v_{w_i}
 $$
 </pre>
-
 To even make this statement simpler, assume the above figure represents a tensor $S \in \mathcal{R}^{n \times k \times d}$, we can easily run the following Numpy operation to obtain $u$: `u = np.mean(np.mean(S, axis=0), axis=1)`. After knowing how $u$ is computed, then we can understand Theorem 1:
 <pre>
 $$
 v_w = A u
 $$
 </pre>
-
 For any word, if we compute the corresponding vector $u$, the word embedding of this word can be obtained through a linear transformation (matrix multiplication) by a fixed matrix $A$. I provide some algebra walk through the proof of Theorem 1 in the paper. Readers who find it elementary or advanced can skip this block straight to the next section. 
 
 (**Optional**)
@@ -67,7 +63,6 @@ The proof stands as long as the generative model in Figure 1 holds. We set to sh
 \tag{1}
 \end{equation}
 </pre>
-
 The following step is to find the probability density function (pdf) of $c \vert w$: $p(c \vert w)$. In the earlier portion of the paper, we have the following equalities that we can substitute: $Z\_c \approx Z \exp(\|c \|^2)$[^4], the probability density function of a multivariate normal distribution $c \sim (0, \Sigma)$ is $p(c) = \exp(-\frac{1}{2} c^T \Sigma^{-1}c)$, $\| c \|^2 = c^Tc = c^T I c$, and the log-linear model we assumed: $p(w \vert c) = \exp(c \cdot v\_w)$. We can expand $p(c\vert w)$ using Bayes rule and substitute these terms in and obtain:
 <pre>
 \begin{align*}
@@ -75,7 +70,6 @@ p(c \vert w) &\propto p(w \vert c)p(c) \\
 &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1} + I)c) \\
 \end{align*}
 </pre>
-
 After obtaining the probability density function of $c \vert w$, we can think about what kind of random variable this pdf suggests, because eventually we want to know what is $\mathbb{E}(c \vert w)$, the left hand side of equation (1). Since there is a covariance matrix inverse $\Sigma^{-1}$ invovled, we can try to re-arrange the terms to make it look more like a multivariate Gaussian distribution. Since we do want to know $\mathbb{E}(c \vert w)$, we need to know what is the mean of this new distribution.
 
 First, we ignore the covariance determinant term as it is a constant and in Arora's setting, the covariance matrix is invertible -- "if the word vectors as random variables are isotropic to some extent, it will make the covariance matrix identifiable" (identifiable = invertible). The assumption "isotropic word embedding" here means that word embedding dimensions should not be correlated with each other.
@@ -89,7 +83,6 @@ p(c \vert w) &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1}
 &= \frac{1}{Z} \exp(-\frac{1}{2}(-2 v_w \cdot c + c^TB^{-1}c))
 \end{align*}
 </pre>
-
 Now we have two expressions of $p(c \vert w)$. We can match the terms between two equations, one term $c^TB^{-1}c$ already appears in both, but not $-2 v_w \cdot c$. However, there are two terms with negative signs in the top expansion. A trick that applies here is to just make them equal and hope things to work out -- we solve for $\mu$:
 <pre>
 $$
@@ -97,7 +90,6 @@ $$
 -2 v_w \cdot c = -2 \mu^T B^{-1}c
 $$
 </pre>
-
 It is somewhat transparent that on the RHS (right hand side), $B$ needs to disappear since the LHS (left hand side) does not contain any $B$. To do that, $\mu$ should at least contain $B$ so that it cancels out with $B^{-1}$. Also the LHS has $v_w$ while RHS has none. Then the answer should be apparent: $\mu = Bv_w$. If you plug this in, the above equality works, shows that this is our $\mu$. 
 
 My stats PhD friend told me, if I saw a pdf in the form of $w^Tx - \frac{1}{2} x^TB^{-1}x$, then I can actually skip the above algebra and directly "see" this distribution of $x$ as mean $Bw$, with variance $B$. 
@@ -111,7 +103,6 @@ p(c \vert w_1, ..., w_n) \propto p(w_1,...,w_n \vert c) p(c) \propto p(c) \prod_
 = \frac{1}{Z^n} \exp(\sum_{i=1}^n v_{w_i}^Tc - \frac{1}{2} c^T(\Sigma^{-1} + 2nI)c)
 $$
 </pre>
-
 <p>The generation of words are independent with each other conditioned on $c​$. We already know the expression of $p(w \vert c)​$. So the above equation evaluates to a form that we have already worked out before. We can skip the algebra and know that $\mathbb{E}[c \vert w_1, ..., w_n] \approx (\Sigma^{-1} + 2nI)^{-1} \sum_{i=1}^n v_{w_i}​$.</p>
 
 If you still recall the LHS and RHS of the Equation (1), then what we have left to conclude the proof is to plug  what we have derived into the LHS and RHS. Feel free to refer to the paper since it offers a cleaner/shorter presentation.
@@ -121,7 +112,6 @@ $$
  (\Sigma^{-1} + 2I)^{-1} v_w \approx (\Sigma^{-1} + 2nI)^{-1} \sum_{i=1}^n v_{w_i}
 $$
 </pre>
-
 Therefore, we know that the matrix $A$ that we set out to find is now solvable by re-arranging the terms in above equations: $A = n(\Sigma^{-1} + 2I) (\Sigma^{-1} + 2nI)^{-1}$.
 
 (**Optional End**)
@@ -140,7 +130,6 @@ $$
 \arg\min_A \sum_w \| A u_w - v_w \|_2^2
 $$
 </pre>
-
 The paper tried to fit GloVe embeddings using linear transformation and use SIF[^5] to generate context vector $c\_w$. As we can see the practical fit is good in Table 2.
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/discourse-table2.png?raw=true" style="width:50%"> <br> <b>Figure 3</b> </p>

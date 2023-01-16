@@ -75,12 +75,12 @@ The proof stands as long as the generative model in Figure 1 holds. We set to sh
 
 The following step is to find the probability density function (pdf) of $c \vert w$: $p(c \vert w)$. In the earlier portion of the paper, we have the following equalities that we can substitute: $Z\_c \approx Z \exp(\|c \|^2)$[^4], the probability density function of a multivariate normal distribution $c \sim (0, \Sigma)$ is $p(c) = \exp(-\frac{1}{2} c^T \Sigma^{-1}c)$, $\| c \|^2 = c^Tc = c^T I c$, and the log-linear model we assumed: $p(w \vert c) = \exp(c \cdot v\_w)$. We can expand $p(c\vert w)$ using Bayes rule and substitute these terms in and obtain:
 
-$$
+<pre>
 \begin{align*}
 p(c \vert w) &\propto p(w \vert c)p(c) \\
 &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1} + I)c) \\
 \end{align*}
-$$
+</pre>
 
 After obtaining the probability density function of $c \vert w$, we can think about what kind of random variable this pdf suggests, because eventually we want to know what is $\mathbb{E}(c \vert w)$, the left hand side of equation (1). Since there is a covariance matrix inverse $\Sigma^{-1}$ invovled, we can try to re-arrange the terms to make it look more like a multivariate Gaussian distribution. Since we do want to know $\mathbb{E}(c \vert w)$, we need to know what is the mean of this new distribution.
 
@@ -88,14 +88,14 @@ First, we ignore the covariance determinant term as it is a constant and in Aror
 
 Then, all we need to do is to rearrange the terms in $p(c \vert w)$ to appear in the form of $\exp(-\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu))$. By doing so, we will be able to find our $\mu$, the expectation of this pdf. Since the form $\frac{1}{2} c^T( \Sigma^{-1} + 2I)c$ looks very similar to the quadratic form that we need, we can let $B^{-1} = \Sigma^{-1} + 2I$ and let $B$ be our new covariance matrix for $c \vert w$. We can work out the equations from both sides. We let $\mu$ be the mean we want and solve for it:
 
-$$
+<pre>
 \begin{align*}
 p(c \vert w) &\propto \exp(-\frac{1}{2} (c-\mu)^T B^{-1} (c-\mu)) \\
 &= \exp(-\frac{1}{2}(c^T B^{-1} c - c^TB^{-1}\mu - \mu^TB^{-1}c + \mu^TB^{-1}\mu))\\
 p(c \vert w) &\propto \frac{1}{Z} \exp(v_w \cdot c - c^T(\frac{1}{2} \Sigma^{-1} + I)c) \\
 &= \frac{1}{Z} \exp(-\frac{1}{2}(-2 v_w \cdot c + c^TB^{-1}c))
 \end{align*}
-$$
+</pre>
 
 Now we have two expressions of $p(c \vert w)$. We can match the terms between two equations, one term $c^TB^{-1}c$ already appears in both, but not $-2 v_w \cdot c$. However, there are two terms with negative signs in the top expansion. A trick that applies here is to just make them equal and hope things to work out -- we solve for $\mu$:
 

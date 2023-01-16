@@ -29,9 +29,9 @@ $$
 
 The probability of a word $w_i$ occur in the sequence can be described as a log-linear model:
 
-$$
+<pre>
 P(w_i \vert c) = \frac{\exp(c \cdot v_{w_i})}{Z_c}
-$$
+</pre>
 
 Note that $v_{w_i}$ indicates the actual vector representation of $w_i$, and this probability model uses dot-product distance to capture the probability of word $w_i$ appear in the sequence, normalized by a partition function $Z_c = \sum_w \exp(v_w \cdot c)$. This dictates that the discourse vector $c$ will be close to words it produces in vector space.
 

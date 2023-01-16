@@ -145,7 +145,6 @@ Therefore, we know that the matrix $A$ that we set out to find is now solvable b
 The last choice is to do monte carlo estimation on the Theorem 1's original equation: $v\_w \approx A \mathbb{E}(\frac{1}{n} \sum_{w_i \in s} v\_{w_i} \vert w \in s)$, replace the expectation with sampling over window $s$ and sampling over word $w$, and find $A$ as a linear regression problem. This is also the method the original paper has chosen.
 
 If we suppose that $u$ is the averaged discourse vectors for word $w$, then iterating through the vocabulary, we should be able to find matrix $A$ by solving the following optimization:
-
 <pre>
 $$
 \arg\min_A \sum_w \| A u_w - v_w \|_2^2
@@ -163,15 +162,12 @@ Intuitively, Theorem 1 dictates that a word has a **linear relationship** (fulfi
 Since we do not observe the frequency ($\alpha$, $\beta$), nor do we know how many senses are in there, Arora proposed to discover senses using **sparse coding**[^6], finding a set of unit vectors $A\_1, ...,A\_m$, that for any word $v\_w$, it can be expressed by a small number of these unit vectors. These unit vectors are referred as the **Atoms of Discourse**.
 
 Sparse coding objective and description can be found in the paper, overall, given a set of word vectors, two integers k, m with k << m, find a set of unit vectors $A\_1, ...,A\_m$ such that:
-
 <pre>
 $$
 v_w = \sum_{j=1}^m \alpha_{w,j}A_j + \eta_w
 $$
 </pre>
-
 where at most k of the coefficients $\alpha$ are nonzero.  The goal is to minimize the reconstruction error term $\sum\_w \eta\_w$.
-
 <pre>
 $$
 \sum_w \vert\vert v_w - \sum_{j=1}^m \alpha_{w,j} A_j \vert\vert_2^2
@@ -191,13 +187,11 @@ We can list out the assumptions used in Arora et al.'s model:
 Each assumption has some flaws. Assumption (1) assumes a very simplistic model on how words are generated from meaning. By extending to a more complex model, such as bilinear transformation: $p(w \vert c) \propto \exp(v\_w^T H c)$, we gain more expressivity and we still have an analytical expression of $c\vert w$, however we might lose the concentration of the partition function $Z\_c$.
 
 Assumption (2) is a very serious offense for syntax in language. Words definitely depend on one another -- grammatical structure naturally emerges from word-to-word dependencies. `The drink is cold`, the choice of `is` is clearly influenced by the plurality of the subject. However, if we drop this assumption, we won't be able to get the following factorization:
-
 <pre>
 $$
  p(w_1,...,w_n \vert c) \propto \prod_{i=1}^n p(w_i \vert c)
 $$
 </pre>
-
 Instead, what we get is:
 <pre>
 $$
@@ -217,9 +211,11 @@ So what does Theorem 1 really provide for us? Well, it obviously leads to Theore
 In many cases, we want the theory to have suggestive power for applications. Many sentence embedding models have been proposed and many of them have different objectives: InferSent, DisSent[^8] trained on a specific semantic task (predicting inference or discourse relation); OpenAI GPT[^9] and ELMo[^10] trains with language modeling; BERT[^11] trains with word cloze task (using context to predict center word).
 
 From a very high-level view, Theorem 1 seems to be proposing a relationship between averaged context and a word that appeared in those contexts: **a word can be "recovered" through applying a linear transformation to the averaged context vectors that contains this word**. This is very different from the language-modeling objective:
+<pre>
 $$
 p(x_1,...,x_n) = \prod_{t=1}^n p(x_t | x_{<t})
 $$
+</pre>
 A cursory look at the graphical model of Arora's model and language model reminded me of the confounding variable diagram below:
 
 <p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/discourse-figA.png?raw=true" style="width:50%"> <br> <b>Figure 5</b> </p>

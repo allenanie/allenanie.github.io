@@ -43,9 +43,9 @@ Theorem 1 of Arora et al. (2018)[^3] paper can be understood by introducing a ve
 
 For this word $w$, it must appear in different spans of words across the entire document. A random variable of a window of $n$ words can be introduced as $s$, a span. Computationally, the vector $u$ for the word $w$ can be computed as follow:
 
-$$
+<pre>
 u = \frac{1}{k} \sum_{s \in \{s_1, ..., s_k\}} \frac{1}{n} \sum_{w_i \in s} v_{w_i}
-$$
+</pre>
 
 To even make this statement simpler, assume the above figure represents a tensor $S \in \mathcal{R}^{n \times k \times d}$, we can easily run the following Numpy operation to obtain $u$: `u = np.mean(np.mean(S, axis=0), axis=1)`. After knowing how $u$ is computed, then we can understand Theorem 1:
 $$

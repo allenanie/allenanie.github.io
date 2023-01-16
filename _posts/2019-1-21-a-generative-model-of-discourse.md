@@ -172,9 +172,11 @@ $$
 
 where at most k of the coefficients $\alpha$ are nonzero.  The goal is to minimize the reconstruction error term $\sum\_w \eta\_w$.
 
+<pre>
 $$
 \sum_w \vert\vert v_w - \sum_{j=1}^m \alpha_{w,j} A_j \vert\vert_2^2
 $$
+</pre>
 
 ### Do Non-linear Sentence Embeddings Conform to this?
 
@@ -190,14 +192,18 @@ Each assumption has some flaws. Assumption (1) assumes a very simplistic model o
 
 Assumption (2) is a very serious offense for syntax in language. Words definitely depend on one another -- grammatical structure naturally emerges from word-to-word dependencies. `The drink is cold`, the choice of `is` is clearly influenced by the plurality of the subject. However, if we drop this assumption, we won't be able to get the following factorization:
 
+<pre>
 $$
  p(w_1,...,w_n \vert c) \propto \prod_{i=1}^n p(w_i \vert c)
 $$
+</pre>
 
 Instead, what we get is:
+<pre>
 $$
 p(w_1,...,w_n \vert c) \propto \prod_{i=1}^n p(w_i \vert c, w_{<i})
 $$
+</pre>
 This will not enable us to reuse the $p(w\vert c)$ expression that we derived, breaking the equality in Equation (1). 
 
 Assumption (3) dictates a Gaussian random walk model, which seems least objectionable. The discussion of this assumption is left for future posts. 

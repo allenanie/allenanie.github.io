@@ -485,6 +485,75 @@ sup {
   border-color: #8C1515;
   color: #8C1515;
 }
+
+.nonbtn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.nonbtn.btn-sm {
+  // padding: .4rem;
+  font-size: .7rem;
+  border-radius: .2rem;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
+.btn-outline-aaai {
+  border-color: #F7E6ED;
+  background-color: #F4E0E9;
+  color: #4C2237;
+  font-weight: 500;
+}
+
+.btn-outline-neurips {
+  border-color: #F4F0F8;
+  background-color: #E8DDEE;
+  color: #412454;
+  font-weight: 500;
+}
+
+.btn-outline-nlp {
+  border-color: #EAF3F8;
+  background-color: #D3E4EF;
+  color: #1A3247;
+  font-weight: 500;
+}
+
+.btn-outline-journal {
+  border-color: #FBE4D4;
+  background-color: #F9DEC9;
+  color: #49290D;
+  font-weight: 500;
+}
+
+.btn-outline-edu {
+  border-color: #E1F1E2;
+  background-color: #DBEDDB;
+  color: #1D3829;
+  font-weight: 500;
+}
+
+.btn-outline-misc {
+  border-color: #F8F8F8;
+  background-color: #F1F0F0;
+  color: #32302C;
+  font-weight: 500;
+}
+
 .btn {
   padding: .5rem;
   font-size: .8rem;

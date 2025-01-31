@@ -4,7 +4,7 @@
 # to test locally: jekyll serve --baseurl ''
 
 # Name of your site (displayed in the header)
-name: Allen Nie
+title: Allen Nie
 
 # Short bio or description (displayed in the header)
 description: "A blog for RL, NLP, and Programming"

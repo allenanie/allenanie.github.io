@@ -4,7 +4,6 @@ title: On Bias and Variance Decomposition of Offline Policy Evaluation Estimator
 published: true
 draft: false
 ---
-# On Bias and Variance Decomposition of Offline Policy Evaluation Estimators
 
 Note: This blog post is an unpublished partial draft of a larger work, jointly written with [Aishwarya Mandyam](https://aishwaryamandyam.com/).
 

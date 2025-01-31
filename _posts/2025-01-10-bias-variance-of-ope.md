@@ -1,6 +1,8 @@
 ---
 layout: post
+title: On Bias and Variance Decomposition of Offline Policy Evaluation Estimators
 published: true
+draft: false
 ---
 # On Bias and Variance Decomposition of Offline Policy Evaluation Estimators
 

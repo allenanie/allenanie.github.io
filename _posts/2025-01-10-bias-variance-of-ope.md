@@ -5,7 +5,7 @@ published: true
 draft: false
 ---
 
-Note: This blog post is an unpublished partial draft of a larger work, jointly written with [Aishwarya Mandyam](https://aishwaryamandyam.com/).
+Note: This blog post is an unpublished partial draft of a larger work, jointly written with [Aishwarya Mandyam](https://aishwaryamandyam.com/). 
 
 ## Introduction
 
@@ -90,7 +90,7 @@ For (1'), we first consider the inner variance with respect to $D_{\hat{R}}$ ass
 \end{align}
 </pre>
 
-Substituting this into (1') :
+Substituting this into (1'):
 
 <pre>
 \begin{align}
@@ -174,7 +174,9 @@ However, Importance sampling estimator is known for having a relatively large va
 Step 24 to 25 is because we know each sample is i.i.d. Let $w_i = \frac{\pi_e(a_i \vert s_i)}{\pi_b(a_i \vert s_i)}$, the **empirical variance estimator** is: 
 
 <pre>
+$$
 \hat{\mathbb{V}}_{D \sim \mathcal{D}}[\hat{V}^{\text{IS}}] = \frac{1}{N} \sum_{i=1}^N \big (w_i R(s_i, a_i) - \hat V^{\text{IS}} \big)^2
+$$
 </pre>
 
 ### Bonus Content (Weighted Importance Sampling)
@@ -184,7 +186,9 @@ Weighted importance sampling estimator is also called a self-normalizing importa
 WIS can be defined as (using $w_i = \frac{\pi_e(a_i \vert s_i)}{\pi_b(a_i \vert s_i)}$)
 
 <pre>
+$$
 \hat V^{\text{WIS}} = \frac{\sum_{i=1}^N w_i R(s_i, a_i)}{\sum_{i=1}^N w_i} = \sum_{i=1}^N \frac{w_i}{\sum_{i=1}^N w_i} R(s_i, a_i)
+$$
 </pre>
 
 We show a quick derivation of their bias and variance.
@@ -208,16 +212,18 @@ Step (29) to step (30) followed the IS bias derivation. We can see that WIS esti
 This is a biased estimator
 
 <pre>
+$$
 \hat V^{\text{WIS}}  =  \underbrace{\frac{1}{\frac{1}{N}\sum_{i=1}^N w_i}}_{a} \cdot \underbrace{\frac{1}{N} \sum_{i=1}^N  w_iR(s_i, a_i)}_{b}
+$$
 </pre>
 
 We can show that $\hat V^{\text{WIS}}$ is consistent.
 
 <pre>
+$$
 \lim_{N \rightarrow \infty }\frac{1}{N}\sum_{i=1}^N w_i \stackrel{a.s.}{\rightarrow} \mathbb{E}_{s_i \sim d, a_i \sim \pi_b} \Big[ \frac{\pi_e(a_i|s_i)}{\pi_b(a_i|s_i)} \Big] = \mathbb{E}_{s_i \sim d} \Big[ \pi_e(a_i|s_i)\Big] = 1
+$$
 </pre>
-
-(Note: I’m not sure if it’s strong consistency or weak consistency here)
 
 As we can see, $a \rightarrow 1$ as $N \rightarrow \infty$. We can also apply the strong law of large numbers on $b$ and see $b \rightarrow V(\pi_e)$ as $N \rightarrow \infty$.  Therefore, $\hat V^{\text{WIS}} \rightarrow V(\pi_e)$ as $N \rightarrow \infty$.
 
@@ -228,13 +234,17 @@ Variance of an WIS estimator requires derivation over $\frac{w_i}{\sum_{i}w_i}$,
 For ease of discussion, we define two dummy variables $X = \frac{1}{N} \sum_{i} w_i R(s_i, a_i)$ and $Y = \frac{1}{N} \sum_i w_i$. It’s easy to see $\hat V^{\text{WIS}} = X/Y$. Let $\mu_x = \mathbb{E}[X]$ and $\mu_y = \mathbb{E}[Y]$. We can define a two-variable function $f(x, y) = x/y$ and its first-order Taylor Expansion to be:
 
 <pre>
+$$
 f(X, Y) \approx f(\mu_x, \mu_y) + \nabla_X f(\mu_x, \mu_y)(X - \mu_x) + \nabla_Y f(\mu_x, \mu_y)(Y-\mu_y)
+$$
 </pre>
 
 If we take variance on both side, we get:
 
 <pre>
+$$
 \mathbb{V}_{D \sim \mathcal{D}} \Bigg[\frac{X}{Y} \Bigg] \approx \Big(\nabla_X f(\mu_x, \mu_y) \Big)^2 \mathbb{V}[X] + \Big(\nabla_Y(\mu_x, \mu_y) \Big)^2 \mathbb{V}[Y] + 2 \nabla_X f(\mu_x, \mu_y) \nabla_Y f(\mu_x, \mu_y) \mathrm{Cov}(X, Y)
+$$
 </pre>
 
 Note that $\nabla_X f = \frac{1}{Y}$, therefore, $\nabla_X f(\mu_x, \mu_y) = \frac{1}{\mu_y}$. Similarly, $\nabla_Y f = \frac{X}{Y^2}$, therefore $\nabla_Y f(\mu_x, \mu_y) = \frac{\mu_x}{\mu_y^2}$. Using that, we can write out the equation above as below. We also assume $w_i \sim W, R(s_i, a_i) \sim R$ (where both $W$ and $R$ have randomness over $D$).
@@ -251,7 +261,9 @@ Note that $\nabla_X f = \frac{1}{Y}$, therefore, $\nabla_X f(\mu_x, \mu_y) = \fr
 Note that $\mu_x / \mu_y = V^{\text{WIS}}$, therefore, we can write this as:
 
 <pre>
+$$
 \mathbb{V}_{D \sim \mathcal{D}} [\hat V^{\text{WIS}}] \approx \frac{1}{N}\frac{\mathbb{E}_{D \sim \mathcal{D}} \Bigg[ w_i^2 \Big(R(s_i, a_i) - \hat V^{\text{WIS}} \Big)^2 \Bigg]}{\mathbb{E}_{D \sim \mathcal{D}}\big[w_i \big]^2}
+$$
 </pre>
 
 The empirical variance estimator for this is:

@@ -19,12 +19,12 @@ The second option is importance sampling (IS)[2], in which you re-weight samples
 
 ## Notation
 
-{% raw %}
+
 $\pi_e$ : target, or learned policy. Our goal is to evaluate this policy. 
 
 $\pi_b$ : behavior policy. Our offline dataset contains samples that arise from this behavior policy. 
 
-$\rho = \frac{\pi_e(a|s)}{\pi_b(a|s)}$ : importance sampling ratio comparing the likelihood of observing a sample in the target policy to the likelihood of observing it in the behavior policy
+$\rho = \frac{\pi_e(a \vert s)}{\pi_b(a \vert s)}$ : importance sampling ratio comparing the likelihood of observing a sample in the target policy to the likelihood of observing it in the behavior policy
 
 $S,A$ : state and action spaces
 
@@ -41,7 +41,7 @@ $D_1 \sim \mathcal{D}$: dataset used to fit the OPE estimate
 $D_{\hat{R}} \sim \mathcal{D}$: dataset used to fit the reward model
 
 $V = V(\pi_e) = \mathbb{E}_{s \sim  d, a\sim\pi_e}[R(s, a)]$: the true return of the model. $\hat V$ is an estimator for this estimand.
-{% endraw %}
+
 
 ## Direct Method
 

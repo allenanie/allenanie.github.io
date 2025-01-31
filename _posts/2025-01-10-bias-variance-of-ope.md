@@ -3,6 +3,7 @@ layout: post
 title: On Bias and Variance Decomposition of Offline Policy Evaluation Estimators
 published: true
 draft: false
+render_with_liquid: false
 ---
 
 Note: This blog post is an unpublished partial draft of a larger work, jointly written with [Aishwarya Mandyam](https://aishwaryamandyam.com/).
@@ -82,7 +83,6 @@ $$
 For (1'), we first consider the inner variance with respect to $D_{\hat{R}}$ assuming $\hat{R}$ is given:
 
 $$
-
 \begin{align}
 \mathbb{V}_{D_{\hat{R}} \sim \mathcal{D}} \left[ \hat{V}^{\text{DM}} \right] &= \mathbb{V}_{D_{\hat{R}} \sim \mathcal{D}} \left[ \frac{1}{N} \sum_{i=1}^{N} \sum_{a \in A} \pi_e(a|s_i) \hat{R}(s_i,a) \right] \\
 &= \frac{1}{{N}^2} \sum_{i=1}^{N} \mathbb{V}_{s_i \sim d_0} \left[ \hat{R}(s_i,\pi_e) \right] \\
@@ -206,7 +206,7 @@ Step (29) to step (30) followed the IS bias derivation. We can see that WIS esti
 
 **Consistency Corollary**
 
-[TODO] [why we are showing this is consistent] This is a biased estimator
+This is a biased estimator
 
 $$
 \hat V^{\text{WIS}}  =  \underbrace{\frac{1}{\frac{1}{N}\sum_{i=1}^N w_i}}_{a} \cdot \underbrace{\frac{1}{N} \sum_{i=1}^N  w_iR(s_i, a_i)}_{b}

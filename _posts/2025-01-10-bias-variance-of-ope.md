@@ -87,7 +87,7 @@ For (1'), we first consider the inner variance with respect to $D_{\hat{R}}$ ass
 <pre>
 \begin{align}
 \mathbb{V}_{D_{\hat{R}} \sim \mathcal{D}} \left[ \hat{V}^{\text{DM}} \right] &= \mathbb{V}_{D_{\hat{R}} \sim \mathcal{D}} \left[ \frac{1}{N} \sum_{i=1}^{N} \sum_{a \in A} \pi_e(a|s_i) \hat{R}(s_i,a) \right] \\
-&= \frac{1}{{N}^2} \sum_{i=1}^{N} \mathbb{V}_{s_i \sim d_0} \left[ \hat{R}(s_i,\pi_e) \right] \\
+&= \frac{1}{N^2} \sum_{i=1}^{N} \mathbb{V}_{s_i \sim d_0} \left[ \hat{R}(s_i,\pi_e) \right] \\
 &= \frac{1}{N} \mathbb{V}_{s \sim d_0} \left[ \hat{R}(s,\pi_e) \right]
 \end{align}
 </pre>

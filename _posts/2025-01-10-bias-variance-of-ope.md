@@ -206,9 +206,7 @@ We show a quick derivation of their bias and variance.
 </pre>
 
 
-Step (29) to step (30) followed the IS bias derivation. We can see that WIS estimator is only unbiased when 
-<pre>$\sum_{i=1}^N\mathbb{E}_{s_i \sim d, a_i \sim \pi_b} [w_i] = N$,</pre> which means $\mathbb{E}_{s_i \sim d, a_i \sim \pi_b} [w_i] = 1$.
-If the evaluation policy $\pi_e$ and behavior policy $\pi_b$ takes the exact same action, then this estimator is unbiased.
+Step (29) to step (30) followed the IS bias derivation. We can see that WIS estimator is only unbiased when <pre>$\sum_{i=1}^N\mathbb{E}_{s_i \sim d, a_i \sim \pi_b} [w_i] = N$,</pre> which means $\mathbb{E}_{s_i \sim d, a_i \sim \pi_b} [w_i] = 1$. If the evaluation policy $\pi_e$ and behavior policy $\pi_b$ takes the exact same action, then this estimator is unbiased.
 
 
 **Consistency Corollary**

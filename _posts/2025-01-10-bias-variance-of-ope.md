@@ -3,7 +3,6 @@ layout: post
 title: On Bias and Variance Decomposition of Offline Policy Evaluation Estimators
 published: true
 draft: false
-render_with_liquid: false
 ---
 
 Note: This blog post is an unpublished partial draft of a larger work, jointly written with [Aishwarya Mandyam](https://aishwaryamandyam.com/).
@@ -46,7 +45,9 @@ $V = V(\pi_e) = \mathbb{E}_{s \sim  d, a\sim\pi_e}[R(s, a)]$: the true return of
 
 ## Direct Method
 
+{% raw %}
 The direct method is  $\hat{V}^{DM} = \frac{1}{N}\sum_{i=1}^N \sum_{a \in A}\pi_e(a|s_i) \hat{R}(s_i, a_i)$. 
+{% endraw %}
 
 ### Bias Derivation
 
@@ -142,7 +143,9 @@ Putting everything together, we have:
 
 ## Importance Sampling
 
+{% raw %}
 The importance sampling (IS) estimator is: $\hat V^{\text{IS}} = \frac{1}{N}\sum_{i=1}^N \frac{\pi_e(a_i|s_i)}{\pi_b(a_i|s_i)} r_i$
+{% endraw %}
 
 ## Bias Derivation
 

@@ -45,9 +45,7 @@ $V = V(\pi_e) = \mathbb{E}_{s \sim  d, a\sim\pi_e}[R(s, a)]$: the true return of
 
 ## Direct Method
 
-{% raw %}
-The direct method is  $\hat{V}^{DM} = \frac{1}{N}\sum_{i=1}^N \sum_{a \in A}\pi_e(a|s_i) \hat{R}(s_i, a_i)$. 
-{% endraw %}
+The direct method is  $\hat{V}^{DM} = \frac{1}{N}\sum_{i=1}^N \sum_{a \in A}\pi_e(a \vert s_i) \hat{R}(s_i, a_i)$. 
 
 ### Bias Derivation
 
@@ -143,9 +141,8 @@ Putting everything together, we have:
 
 ## Importance Sampling
 
-{% raw %}
-The importance sampling (IS) estimator is: $\hat V^{\text{IS}} = \frac{1}{N}\sum_{i=1}^N \frac{\pi_e(a_i|s_i)}{\pi_b(a_i|s_i)} r_i$
-{% endraw %}
+The importance sampling (IS) estimator is: $\hat V^{\text{IS}} = \frac{1}{N}\sum_{i=1}^N \frac{\pi_e(a_i \vert s_i)}{\pi_b(a_i \vert s_i)} r_i$
+
 
 ## Bias Derivation
 
@@ -174,7 +171,7 @@ However, Importance sampling estimator is known for having a relatively large va
 \end{align}
 </pre>
 
-Step 24 to 25 is because we know each sample is i.i.d. Let $w_i = \frac{\pi_e(a_i|s_i)}{\pi_b(a_i|s_i)}$, the **empirical variance estimator** is: 
+Step 24 to 25 is because we know each sample is i.i.d. Let $w_i = \frac{\pi_e(a_i \vert s_i)}{\pi_b(a_i \vert s_i)}$, the **empirical variance estimator** is: 
 
 <pre>
 \hat{\mathbb{V}}_{D \sim \mathcal{D}}[\hat{V}^{\text{IS}}] = \frac{1}{N} \sum_{i=1}^N \big (w_i R(s_i, a_i) - \hat V^{\text{IS}} \big)^2
@@ -184,7 +181,7 @@ Step 24 to 25 is because we know each sample is i.i.d. Let $w_i = \frac{\pi_e(a_
 
 Weighted importance sampling estimator is also called a self-normalizing importance sampling estimator. It is a biased estimator but has smaller variance compared to IS.
 
-WIS can be defined as (using $w_i = \frac{\pi_e(a_i|s_i)}{\pi_b(a_i|s_i)}$)
+WIS can be defined as (using $w_i = \frac{\pi_e(a_i \vert s_i)}{\pi_b(a_i \vert s_i)}$)
 
 <pre>
 \hat V^{\text{WIS}} = \frac{\sum_{i=1}^N w_i R(s_i, a_i)}{\sum_{i=1}^N w_i} = \sum_{i=1}^N \frac{w_i}{\sum_{i=1}^N w_i} R(s_i, a_i)

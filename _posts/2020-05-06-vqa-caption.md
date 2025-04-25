@@ -1,7 +1,7 @@
 ---
 published: true
 layout: post
-title: Using Visual Question Answering to Generate Issue-Sensitive Captions
+title: Rational Speech Act and Controllable Image Caption Generation
 ---
 
 [[Paper]](https://arxiv.org/abs/2004.14451)

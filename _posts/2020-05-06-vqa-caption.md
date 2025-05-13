@@ -8,7 +8,7 @@ title: Rational Speech Act and Controllable Image Caption Generation
 
 In the past two years, controlling generative models (such as GANs and VAEs) have been widely studied in the Computer Vision literature. The idea is that once these large capacity neural network models learn the data manifold of millions of images, it has internalized some knowledge about the world. The "knowledge" learned is often in the form of abstract concepts such as "skin tone", "hair style" from faces, or "brightness", "rotation angles" for general images. We can then explicitly control images generated from GAN or VAE with respect to these abstract concepts through some post-training manipulations.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_GAN_VAE.png?raw=true" style="width:120%"> <br> <span>Figure 1: (a) from OpenAI GLOW demo; (b) from ICLR 2020 paper: On the "steerability" of generative adversarial networks.</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_GAN_VAE.png?raw=true" style="width:120%"> <br> <span>Figure 1: (a) from OpenAI GLOW demo; (b) from ICLR 2020 paper: On the "steerability" of generative adversarial networks.</span> </p>
 
 Despite such an impressive result, controlling generative models in text has been far more difficult. Limited successes have been achieved for properties like sentiment or tense (Hu et al.[^1]). Further work from Lample et al.[^2] leveraged the domain where the data are collected to add additional attributes such as gender, race, age, and interests (like music, book, movie, etc.), and trained a neural network from scratch conditioned on these attributes. However, for vagueness, politeness, genericness, sarcasm, humor, and formality, we have made little progress in developing neural network based decoding method to control these aspects of text. 
 
@@ -37,7 +37,7 @@ So the idea seems fun, but is this technologically possible? Remember, there is 
 
 ## QuD in Image Captioning
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/fig5_large.png?raw=true" style="width:120%"> <br> <span>Figure 2: Examples from applying our method to a SoTA 6-layer encoder-decoder Transformer with 55M parameters image captioner trained on the MS COCO dataset. The base caption shows what the Transformer originally would have outputted(last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. We can produce captions that try to address a question.</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/fig5_large.png?raw=true" style="width:120%"> <br> <span>Figure 2: Examples from applying our method to a SoTA 6-layer encoder-decoder Transformer with 55M parameters image captioner trained on the MS COCO dataset. The base caption shows what the Transformer originally would have outputted(last column). The penultimate column (Issue-sensitive caption) shows what our method would produce. We can produce captions that try to address a question.</span> </p>
 
 VQA style questions focus on three things: object, attribute of the object, relationship between objects. If we think more carefully about a useful representation of an image (let's say if we want an image to someone who can't see), we will describe the first picture in Figure 2 as "There's grass on the ground. The photo is captured through a net. There is a guy wearing orange jersey, white pants, and he's throwing a baseball. This guy is a pitcher. He's standing on a field". We can write this more structurally into a list, where we would list every object, its every attribute (color, weight, texture, etc.), and its relationship to other object in the picture. Needless to say, this list will be incredibly long and I personally doubt if it can ever be "complete". 
 
@@ -53,13 +53,13 @@ In the previous section, we have established that in order to be question-aware,
 
 The Rational Speech Act (RSA) is a framework of Bayesian models for cognition and language. It turns out a simple model in this family is highly revelant for machine learning tasks, since it captures the idea of referential language generation (which I will describe below). Computing this model turns out to require only simple matrix operations, which is extremely suitable and modular to apply to any large neural network model.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/police_lineup.jpg?raw=true" style="width:70%"> <br> <span>Source: New Yorker; University of Michigan, Law School. </span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/police_lineup.jpg?raw=true" style="width:70%"> <br> <span>Source: New Yorker; University of Michigan, Law School. </span> </p>
 
 Here's the intuition on what human thought process RSA is trying to capture. If you were asked to say a word to the police so that they can pick out number 5 (but you are not allowed to say numbers), you probably would not say "a man," nor would you say "khaki pants". The best word you can pick (assuming you are rational) is "baseball cap" because it uniquely identifies number 5. RSA is created to emulate this thought process -- when you have a group of images, you want to pick the word that best represents it (so that it's distinguishing the target image from the rest).
 
 The computational process for the simplest RSA model can be easily achieved through Bayes rule -- probability matrix normalization. In this formulation, a simplified version of our pre-trained image captioner model is $S_0(\mathbf{w} \vert \mathbf{i})$, a row-stochastic probability matrix (probabilities in a row sum up to 1) where the rows are "images", represented as a list of features, and the columns are the features we can pick to represent the image. How is this a captioning model? Well, you can imagine a captioning model that only produces one word (represented as an emoji in our schema).
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_simple.png?raw=true" style="width:100%"> <br> <span>Figure 3: A simple RSA computing process. </span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_simple.png?raw=true" style="width:100%"> <br> <span>Figure 3: A simple RSA computing process. </span> </p>
 
 Without considering the goal of contrasting two other images, for the first image, we will choose either  `baseball cap` or `mountain` to describe it. However, if we want to uniquely identify this image (to a police officer, or to anyone who's "listening") against the other two images, we would realize that the other two rows also have mountains. What's unique about the first row is the `baseball cap`.
 
@@ -95,7 +95,7 @@ Given this answer, we can partition a list of images into two groups: images whe
 
 Suppose we happen to select these 6 images from a larger group of images. First three images have baseball cap, the next three do not. Can we just naively apply RSA and hope the item we pick will be about the baseball cap? The answer is unfortunately no. Before RSA, the caption model will randomly choose between baseball cap and mountain. After RSA, it will choose mountain, which is worse.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 5: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_comp_fig.png?raw=true" style="width:100%"> <br> <span>Figure 5: Directly applying RSA is NOT question-aware (or issue-sensitive, as defined in our paper).</span> </p>
 
 OK. We ran into a problem: even though our VQA model **partitioned 6 images into two cells** (top 3 rows and bottom 3 rows), the RSA computation is unaware of this (cell structure). What it does is treating all 5 other images (rows) as distractors and try to find what's unique about the target image (first row) against all else, which is the mountain. 
 
@@ -110,7 +110,7 @@ S_1^{\mathbf{C}}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} \b
 
 This formula redefines the pragmatic listener matrix $L_1$ as an informative utility $U_1^{\mathbf{C}}$, and compute $S_1$ probability matrix proportional to it. In the RSA literature, this is often referred to as the QuD-RSA (QuD: Question-under-Discussion). If we visualize this process with actual probability numbers, here's the result:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_Q_U1.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-RSA.</span> </p>
 
 As you can see, what we really did is just add up along the column for the original $L_1$ matrix, and then normalize over the row for the target image. This allows our RSA output to be issue-sensitive (question-aware). But wait wait wait, something is not right here! If you actually looked very closely at the $S_1^\mathbf{C}$ table, you'd realize what the RSA picked out is still wrong -- it would randomly choose between `skiing` and `mountain`. What the heck is going on?
 
@@ -129,7 +129,7 @@ S_1^{\mathbf{C}+H}(\mathbf{w} \vert \mathbf{i}, \mathbf{C}) &\propto \text{exp} 
 
 And computationally it can be visualized as:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_QH.png?raw=true" style="width:70%"> <br> <span>Figure 6: We show the computational process of QuD-Entropy-RSA.</span> </p>
 
 Now the story for generating issue-sensitive (question-aware) captions is complete. With the added entropy reward, the $S_1$ matrix will finally pick `baseball cap` as the answer to `What is the person wearing?`.
 
@@ -150,17 +150,17 @@ We are able to build a simple keyword based classifier that can identify body pa
 
 Instead of using VQA, we use the feature matrix annotation as guide to select birds that share similar features (that describe the body parts) with the target image, and birds that don't share similar features. We show some generated captions below:
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_bird_ex.png?raw=true" style="width:100%"> <br> <span>Figure 7: Generated captions for CUB birds. Left bracket contains images that share the same feature (under discussion) as the target image. Right bracket contains images that don't.</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_bird_ex.png?raw=true" style="width:100%"> <br> <span>Figure 7: Generated captions for CUB birds. Left bracket contains images that share the same feature (under discussion) as the target image. Right bracket contains images that don't.</span> </p>
 
 We begin by assessing the extent to which our issues ensitive pragmatic models produce captions that are more richly descriptive of the target image than a base neural captioner. For CUB, we can simply count how many attributes the caption specifies according to our feature-in-text classifier. More precisely, for each image and each model, we generate captions under all resolvable issues, concatenate those captions, and then use the feature-in-text classifier to obtain a list of attributes, which we can then compare to the ground truth for the image as given by the CUB dataset.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_table1.png?raw=true" style="width:60%"> <br> <span>Table 1</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_table1.png?raw=true" style="width:60%"> <br> <span>Table 1</span> </p>
 
 Table 1 reports on this evaluation. Precision for all models is very high; the underlying attributes in CUB are very comprehensive, so all high-quality captioners are likely to do well by this metric. In contrast, the recall scores vary substantially, and they clearly favor the issue-sensitive models, revealing them to be substantially more descriptive than $S_0$. 
 
 In Table 2, we provide a breakdown of these scores by body part. The issue-sensitive models are clear winners for all categories. It is noteworthy that the entropy term seems to help for some categories but not others, suggesting underlying variation in the categories themselves. It's safe to say that some categories are rarely discussed in ground-truth captions thus leading to difficulty for the captioning model to generate them.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_table2.png?raw=true" style="width:60%"> <br> <span>Table 2</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_table2.png?raw=true" style="width:60%"> <br> <span>Table 2</span> </p>
 
 Our previous evaluation shows that varying the issue has a positive effect on the captions generated by our issue-sensitive models, but it does not assess whether these captions resolve individual issues in an intuitive way. We now report on an assessment that quantifies issue-sensitivity in this sense. 
 
@@ -168,7 +168,7 @@ The question posed by this method is as follows: for a given issue, does the pro
 
 Overall, the scores reveal that this is a very challenging problem, which traces to the fine-grained issues that CUB supports. Entropy in here proves to be incredibly important to resolve the issue.
 
-<p style="text-align: center"><img src="https://github.com/windweller/windweller.github.io/blob/master/images/bayesian_decoding/RSA_table3.png?raw=true" style="width:60%"> <br> <span>Table 3</span> </p>
+<p style="text-align: center"><img src="https://github.com/allenanie/allenanie.github.io/blob/master/images/bayesian_decoding/RSA_table3.png?raw=true" style="width:60%"> <br> <span>Table 3</span> </p>
 
 ## Conclusion
 

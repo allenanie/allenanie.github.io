@@ -557,13 +557,11 @@ sup {
 .btn-outline-bestpaper {
   border: none;
   background: linear-gradient(90deg, #ff6a00, #ffcc00, #00c851, #33b5e5, #aa66cc);
-  background-size: 1000% 1000%;
   color: white;
   font-weight: 600;
-  padding: 0.25em 0.75em;
+  padding: 0.2em 0.6em;
   border-radius: 4px;
   display: inline-block;
-  animation: gradientShift 6s ease infinite;
 }
 
 .btn {

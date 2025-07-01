@@ -566,13 +566,13 @@ sup {
 
 .btn-outline-oral {
   border: none;
-  background-color: #ff0080;  /* Neon pink */
+  background: linear-gradient(90deg, #ff0080, #7928ca);
   color: #ffffff;
+  text-shadow: 0 0 2px #000000;
   font-weight: 700;
   padding: 0.2em 0.6em;
   border-radius: 4px;
   display: inline-block;
-  box-shadow: 0 0 8px #ff0080, 0 0 6px #ff0080;
 }
 
 .btn {

@@ -554,6 +554,18 @@ sup {
   font-weight: 500;
 }
 
+.btn-outline-bestpaper {
+  border: none;
+  background: linear-gradient(270deg, #ff4e50, #f9d423, #1de9b6, #45cafc, #845ec2);
+  background-size: 1000% 1000%;
+  color: white;
+  font-weight: 600;
+  padding: 0.25em 0.75em;
+  border-radius: 4px;
+  display: inline-block;
+  animation: gradientShift 6s ease infinite;
+}
+
 .btn {
   padding: .5rem;
   font-size: .8rem;

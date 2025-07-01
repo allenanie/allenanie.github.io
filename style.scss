@@ -564,6 +564,17 @@ sup {
   display: inline-block;
 }
 
+.btn-outline-oral {
+  border: none;
+  background-color: #ff0080;  /* Neon pink */
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.2em 0.6em;
+  border-radius: 4px;
+  display: inline-block;
+  box-shadow: 0 0 8px #ff0080, 0 0 6px #ff0080;
+}
+
 .btn {
   padding: .5rem;
   font-size: .8rem;

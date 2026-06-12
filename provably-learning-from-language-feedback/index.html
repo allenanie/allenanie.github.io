@@ -230,7 +230,7 @@ table.paper td .note { font-size: 12.5px; color: var(--ink-muted); font-style: i
   cursor: pointer; transition: transform .08s ease, background .12s ease;
   user-select: none;
 }
-.cell:hover:not(:disabled) { transform: translateY(-1px); background: #e7dfcd; }
+.cell:hover:not(:disabled):not(.hit):not(.miss):not(.sunk):not(.label) { transform: translateY(-1px); background: #e7dfcd; }
 .cell:disabled { cursor: default; }
 .cell .corner { font-weight:600; color: var(--ink-faint); }
 .cell.label { background: transparent; color: var(--ink-faint); font-size: 12.5px; cursor: default; }
@@ -606,7 +606,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     Why structure exploration this way rather than trust the model to explore on its own? Because
     whether LLMs can balance exploration and exploitation <em>in context</em> is far from settled —
     studies that probe them on bandit-style decision problems find the ability uneven and often in need
-    of explicit scaffolding<sup class="refmark"><a href="#ref-evolve">3</a></sup>. HELiX supplies that
+    of explicit scaffolding. HELiX supplies that
     scaffolding as an external rule inspired by a provable algorithm instead of hoping it emerges from a single CoT.
   </p>
 
@@ -834,14 +834,6 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
       <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 2013.
       <span class="refnote">Introduces the eluder dimension, the reward-space complexity measure that
       the transfer eluder dimension generalizes.</span>
-    </li>
-    <li id="ref-evolve">
-      A. Nie, Y. Su, B. Chang, J. N. Lee, E. H. Chi, Q. V. Le, and M. Chen.
-      <a href="https://arxiv.org/abs/2410.06238" target="_blank" rel="noopener">EVOLvE: Evaluating and
-      Optimizing LLMs For In-Context Exploration</a>. <em>International Conference on Machine Learning
-      (ICML)</em>, 2025.
-      <span class="refnote">Evaluates how well LLMs explore under uncertainty on bandit problems and how
-      to improve them — motivating HELiX's explicit exploration scaffolding.</span>
     </li>
   </ol>
 </section>

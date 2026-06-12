@@ -165,6 +165,12 @@ li { margin: 8px 0; }
 
 /* ---------- Figures ---------- */
 figure { margin: 32px 0; }
+
+/* Keep long display equations from spilling past the viewport (mobile horizontal scroll).
+   The wide inner math scrolls inside its own box instead of bleeding onto the page. */
+mjx-container { max-width: 100%; }
+mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; }
+
 figure img {
   width: 100%; height: auto; display: block;
   border: 1px solid var(--rule);

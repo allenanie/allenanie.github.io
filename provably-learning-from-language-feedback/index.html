@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Provably Learning from Language Feedback</title>
+<meta name="description" content="A formal framework for learning from language feedback, the transfer eluder dimension, and the HELiX algorithm — with interactive demos." />
+
+<script>
+  MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+<style>
+:root {
+  --bg:        #f4f1ea;   /* warm cream */
+  --bg-card:   #fbfaf6;   /* lighter card */
+  --bg-sunk:   #efe9dc;
+  --ink:       #232220;   /* near-black, warm */
+  --ink-soft:  #4a463f;
+  --ink-faint: #7a7468;
+  --rule:      #ddd6c7;
+  --rule-soft: #e8e2d5;
+  --clay:      #b6543a;   /* Anthropic-ish terracotta */
+  --clay-soft: #c97c63;
+  --clay-bg:   #f0e3dc;
+  --slate:     #4e6477;   /* muted blue */
+  --slate-bg:  #e2e8ec;
+  --moss:      #5f6f4e;   /* muted green */
+  --moss-bg:   #e6eadd;
+  --gold:      #b08a2e;
+  --maxwidth:  760px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  font-size: 19px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap { max-width: var(--maxwidth); margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Header ---------- */
+header.hero {
+  border-bottom: 1px solid var(--rule);
+  padding: 72px 0 40px;
+  background:
+    radial-gradient(900px 320px at 70% -120px, rgba(182,84,58,0.08), transparent 70%),
+    var(--bg);
+}
+.eyebrow {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--clay);
+  margin: 0 0 18px;
+}
+h1.title {
+  font-size: 42px;
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 22px;
+}
+.authors {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0 0 6px;
+}
+.authors .corr { color: var(--clay); }
+.affils {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  color: var(--ink-faint);
+  margin: 4px 0 10px;
+}
+.byline {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin: 0 0 26px;
+}
+.byline .corr { color: var(--clay); font-style: normal; font-weight: 600; }
+.hero-links {
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 14.5px;
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.hero-links a {
+  text-decoration: none;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule);
+  background: var(--bg-card);
+  padding: 7px 15px;
+  border-radius: 999px;
+  transition: all .15s ease;
+}
+.hero-links a:hover { border-color: var(--clay); color: var(--clay); }
+
+/* ---------- Typography ---------- */
+main { padding: 8px 0 80px; }
+section { padding: 18px 0 6px; }
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 24px 0 6px;
+  padding-top: 8px;
+}
+h2 .num {
+  color: var(--clay);
+  font-size: 17px;
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  font-weight: 600;
+  display: block;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+h3 { font-size: 21px; font-weight: 600; margin: 32px 0 4px; }
+p { margin: 16px 0; }
+a { color: var(--clay); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+strong { font-weight: 600; }
+em.term { font-style: italic; color: var(--clay); font-weight: 500; }
+
+.lede { font-size: 21px; line-height: 1.6; color: var(--ink-soft); }
+
+ul, ol { padding-left: 1.3em; }
+li { margin: 8px 0; }
+
+/* ---------- Callouts / cards ---------- */
+.callout {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--clay);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 26px 0;
+  font-size: 17.5px;
+}
+.callout .k {
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-size: 11.5px; font-weight: 700; color: var(--clay);
+  display:block; margin-bottom: 6px;
+}
+.callout.slate { border-left-color: var(--slate); }
+.callout.slate .k { color: var(--slate); }
+
+/* ---------- Figures ---------- */
+figure { margin: 32px 0; }
+figure img {
+  width: 100%; height: auto; display: block;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+}
+figcaption {
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  font-size: 14px; color: var(--ink-faint);
+  margin-top: 12px; line-height: 1.5;
+}
+figcaption b { color: var(--ink-soft); }
+
+/* ---------- Table ---------- */
+.tablewrap { overflow-x: auto; margin: 26px 0; }
+table.paper {
+  border-collapse: collapse; width: 100%;
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  font-size: 15px;
+  background: var(--bg-card);
+  border-radius: 10px; overflow: hidden;
+}
+table.paper th, table.paper td {
+  padding: 12px 16px; text-align: left;
+  border-bottom: 1px solid var(--rule-soft);
+}
+table.paper thead th {
+  background: var(--clay-bg); color: var(--ink);
+  font-weight: 600; font-size: 13.5px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+table.paper thead th .mathhdr { text-transform: none; letter-spacing: normal; }
+table.paper tbody tr:last-child td { border-bottom: none; }
+table.paper td.cx { font-family: "SFMono-Regular", ui-monospace, Menlo, monospace; color: var(--clay); white-space: nowrap; }
+table.paper td .note { font-size: 12.5px; color: var(--ink-muted); font-style: italic; display: block; margin-top: 2px; }
+
+/* ---------- Interactive widgets ---------- */
+.widget {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 30px 0;
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+}
+.widget h4 {
+  margin: 0 0 4px; font-size: 18px; font-weight: 600;
+  display:flex; align-items:center; gap:8px;
+}
+.widget .sub { font-size: 14px; color: var(--ink-faint); margin: 0 0 16px; }
+.widget-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 720px) { .widget-grid.two { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+
+.board { display: inline-grid; gap: 4px; background: var(--rule); padding: 4px; border-radius: 8px; }
+.cell {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-sunk);
+  border: none; border-radius: 5px;
+  font-family: "SFMono-Regular", ui-monospace, Menlo, monospace;
+  font-size: 15px; font-weight: 600; color: var(--ink-soft);
+  cursor: pointer; transition: transform .08s ease, background .12s ease;
+  user-select: none;
+}
+.cell:hover:not(:disabled) { transform: translateY(-1px); background: #e7dfcd; }
+.cell:disabled { cursor: default; }
+.cell .corner { font-weight:600; color: var(--ink-faint); }
+.cell.label { background: transparent; color: var(--ink-faint); font-size: 12.5px; cursor: default; }
+.cell.miss { background: #d9d3c6; color: var(--ink-faint); }
+.cell.hit  { background: var(--clay); color: #fff; }
+.cell.sunk { background: #8c3a26; color: #fff; }
+.cell.flag { background: var(--gold); color:#fff; }
+.cell.mine { background: #5a3d3d; color:#fff; }
+.cell.safe { background: var(--moss-bg); color: var(--moss); }
+.cell.safe.n1{color:#3a5fa0} .cell.safe.n2{color:#5f6f4e} .cell.safe.n3{color:#b6543a}
+.cell.safe.n4{color:#4e3a77} .cell.safe.n5{color:#8c3a26} .cell.safe.n0{color:transparent}
+.cell.hl { outline: 3px solid var(--slate); outline-offset: -3px; }
+
+.btn {
+  font-family: inherit; font-size: 14.5px; font-weight: 600;
+  background: var(--clay); color: #fff; border: none;
+  padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  transition: background .15s ease;
+}
+.btn:hover { background: #9d4631; }
+.btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); }
+.btn.ghost:hover { border-color: var(--clay); color: var(--clay); background: var(--clay-bg); }
+.btn:disabled { opacity: .45; cursor: default; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+
+.feedlog {
+  background: #fff; border: 1px solid var(--rule); border-radius: 8px;
+  padding: 12px 14px; font-size: 14px; line-height: 1.55;
+  max-height: 230px; overflow-y: auto; color: var(--ink-soft);
+}
+.feedlog .fl { padding: 5px 0; border-bottom: 1px dashed var(--rule-soft); }
+.feedlog .fl:last-child { border-bottom: none; }
+.feedlog .fb { color: var(--clay); font-weight: 600; }
+.feedlog .rw { color: var(--moss); font-weight: 600; font-family: ui-monospace, monospace; }
+.feedlog .muted { color: var(--ink-faint); }
+
+.statline { font-size: 14px; color: var(--ink-soft); margin: 10px 0 0; }
+.statline b { color: var(--ink); }
+.pill {
+  display:inline-block; font-size:12px; font-weight:700; padding:2px 9px;
+  border-radius:999px; letter-spacing:.03em;
+}
+.pill.exploit { background: var(--moss-bg); color: var(--moss); }
+.pill.explore { background: var(--clay-bg); color: var(--clay); }
+
+/* score matrix */
+.smatrix { border-collapse: separate; border-spacing: 4px; font-size: 14px; }
+.smatrix th { font-weight: 600; color: var(--ink-soft); padding: 4px 6px; font-size:13px; }
+.smatrix th.act { color: var(--slate); }
+.smatrix th.ref { color: var(--ink-faint); font-style: italic; }
+.smatrix td.hyp { text-align: right; color: var(--clay); max-width: 180px; font-size: 12.5px; line-height:1.3; }
+.smatrix td.sc {
+  width: 52px; height: 40px; text-align: center; border-radius: 6px;
+  font-family: ui-monospace, monospace; font-weight: 600; font-size: 13px;
+  background: var(--bg-sunk); color: var(--ink-soft);
+  transition: background .2s ease, color .2s ease;
+}
+.smatrix td.sc.filled { color: #fff; }
+.smatrix-colbox {
+  position: absolute; pointer-events: none;
+  border: 3px solid var(--clay); border-radius: 9px;
+  box-shadow: 0 0 0 2px var(--clay-bg);
+}
+.smatrix th.ref.dim, .smatrix td.sc.dim { opacity: 0.5; }
+.smatrix th.basehd { color: var(--ink-faint); font-style: italic; font-size: 12px; }
+.smatrix td.base {
+  width: 52px; height: 40px; text-align: center; border-radius: 6px;
+  font-family: ui-monospace, monospace; font-weight: 700; font-size: 13px;
+  background: var(--slate-bg); color: var(--slate);
+  border-left: 2px dashed var(--ink-faint);
+}
+.smatrix td.sc.neg { color: var(--ink-faint); }
+#sm-piref[aria-pressed="true"] {
+  background: var(--clay); color: #fff; border-color: var(--clay);
+}
+.decision {
+  margin-top: 16px; padding: 14px 16px; border-radius: 10px;
+  background: var(--bg-sunk); font-size: 14.5px; line-height: 1.55;
+  border: 1px solid var(--rule);
+}
+.decision.show-exploit { background: var(--moss-bg); border-color: #cdd8bd; }
+.decision.show-explore { background: var(--clay-bg); border-color: #e6cdc2; }
+.hypo-note { font-size: 13px; color: var(--ink-faint); font-style: italic; }
+
+/* ---------- footer ---------- */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 36px 0 60px;
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  font-size: 14px; color: var(--ink-faint);
+}
+footer a { color: var(--ink-soft); }
+
+.tocfloat {
+  position: fixed; top: 18px; right: 18px; z-index: 50;
+  font-family: ui-sans-serif, -apple-system, sans-serif; font-size: 13px;
+}
+.bibcite { font-size: 0.7em; color: var(--slate); vertical-align: super; line-height: 0; }
+
+/* ---------- References ---------- */
+.refmark { font-size: 0.62em; vertical-align: super; line-height: 0; }
+.refmark a { color: var(--slate); text-decoration: none; }
+.refmark a:hover { text-decoration: underline; }
+ol.reflist {
+  list-style: none; counter-reset: ref; padding-left: 0;
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 15.5px;
+}
+ol.reflist li {
+  counter-increment: ref;
+  position: relative; padding-left: 38px; margin: 14px 0;
+  color: var(--ink-soft); line-height: 1.55;
+}
+ol.reflist li::before {
+  content: counter(ref); position: absolute; left: 0; top: 1px;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--clay-bg); color: var(--clay);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+ol.reflist li:target::before { background: var(--clay); color: #fff; }
+ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); margin-top: 3px; }
+
+@media (max-width: 600px) {
+  h1.title { font-size: 32px; }
+  body { font-size: 18px; }
+  .cell { width: 32px; height: 32px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <!-- <p class="eyebrow">Reinforcement Learning · LLM Agents · Learning Theory</p> -->
+    <h1 class="title">Formalizing Learning from Language Feedback with Provable Guarantees</h1>
+    <p class="authors">
+      Wanqiao Xu<span class="bibcite">1</span>,
+      Allen Nie<span class="bibcite">2</span>,
+      Ruijie Zheng<span class="bibcite">3</span>,
+      Aditya Modi<span class="bibcite">4</span>,
+      Adith Swaminathan<span class="bibcite">5</span>,
+      Ching-An Cheng<span class="bibcite">6</span>
+    </p>
+    <p class="affils">
+      <span class="bibcite">1</span>Stanford ·
+      <span class="bibcite">2</span>Google DeepMind ·
+      <span class="bibcite">3</span>NVIDIA ·
+      <span class="bibcite">4</span>Meta ·
+      <span class="bibcite">5</span>Netflix ·
+      <span class="bibcite">6</span>Google Research
+    </p>
+    <p class="byline">Blog post written by <span class="corr">Allen Nie</span></p>
+    <div class="hero-links">
+      <a href="https://arxiv.org/pdf/2506.10341">📄 Read the paper</a>
+      <a href="#intuition">↓ Read the intuition</a>
+      <a href="#play">🎮 Play the games</a>
+      <a href="#matrix">🔢 Build a score matrix</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<!-- ====================== ABSTRACT ====================== -->
+<section id="abstract">
+  <p class="lede">
+    LLM agents increasingly learn not from numerical rewards, but from <strong>language</strong>:
+    a critique, a hint, an explanation of what went wrong. We give this setting a precise
+    mathematical footing, introduce a complexity measure — the <em class="term">transfer eluder dimension</em> —
+    that says <em>when</em> language feedback makes learning easier, and derive a provably
+    no-regret algorithm, <strong>HELiX</strong>, that turns the theory into an inference-time strategy
+    for real LLMs.
+  </p>
+  <div class="callout slate">
+    <span class="k">The one-sentence version</span>
+    Good language feedback can make learning <strong>exponentially faster</strong> than learning from
+    reward alone — and there is a principled way for an LLM to exploit it, by sampling hypotheses,
+    cross-scoring them against candidate actions, and acting on consensus when it exists and on
+    optimism when it does not.
+  </div>
+</section>
+
+<!-- ====================== INTUITION ====================== -->
+<section id="intuition">
+  <h2><span class="num">01</span>Why language feedback is different</h2>
+
+  <p>
+    Classic sequential decision-making — bandits, reinforcement learning — runs on a thin signal:
+    a scalar reward. You take an action, you get a number, you nudge your policy. But the world
+    rarely talks to us in numbers. A reviewer doesn't hand back a $0.7$; they say
+    <em>"the summary is mostly accurate, but it overlooks the main character's motivation."</em>
+  </p>
+
+  <p>
+    That sentence does something a reward cannot: it tells you <strong>what</strong> is wrong and
+    <strong>where</strong> to look. A scalar of $0.7$ leaves you guessing across the whole action
+    space; the critique points straight at a fix. This is the premise of
+    <strong>Learning from Language Feedback (LLF)</strong> — a paradigm introduced as an interactive
+    benchmark by <a href="https://arxiv.org/abs/2312.06853" target="_blank" rel="noopener">Cheng et al.
+    (2023)</a><sup class="refmark"><a href="#ref-llf">1</a></sup>: the agent never sees the reward at
+    all. It must maximize a hidden reward using only natural-language feedback.
+  </p>
+
+  <div class="callout">
+    <span class="k">The setup in one breath</span>
+    At each step the agent picks an action $A_t$, the environment returns language feedback
+    $O_t$, and a reward $R_t = r^*(A_t)$ is silently incurred but <strong>never revealed</strong>.
+    Regret is measured against the best action — so the agent has to <em>decode intent from words</em>,
+    not from scores.
+  </div>
+
+  <h3>A coin that talks</h3>
+  <p>
+    Here is the smallest example that shows why feedback is more than a disguised reward.
+    A coin has unknown head-probability $\eta \in \{0,\,0.1,\,0.5\}$. You guess $a \in \{H, T\}$.
+    The environment says "match" or "miss"; the hidden reward is $1$ if you were right.
+  </p>
+  <p>
+    With binary feedback, "match/miss" carries exactly one bit — the same as the reward.
+    But enrich it to <em>"miss — your guess was too optimistic; the coin seems tail-heavy"</em>
+    and suddenly a single observation can rule out whole families of hypotheses. The information
+    isn't in the reward; it's in the <em>structure of the sentence</em>. The question this paper
+    answers is: how do we <em>quantify</em> that extra information, and how do we
+    <em>provably use</em> it?
+  </p>
+
+  <h3>Feedback shapes difficulty — exponentially</h3>
+  <p>
+    Consider building a hidden $L$-step reasoning chain, where each step is drawn from a set $\mathcal{S}$
+    of possibilities and the reward is $1$ only if every step is correct. The <em>same task</em> becomes
+    wildly easier or harder depending on what the feedback tells you:
+  </p>
+
+  <div class="tablewrap">
+  <table class="paper">
+    <thead>
+      <tr><th>Feedback type</th><th>What it tells you</th><th>Learning complexity <span class="mathhdr">$\dim_{TE}$</span></th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Reward</b></td><td>whether all steps are correct<span class="note">1-bit binary reward</span></td><td class="cx">$O(|\mathcal{S}|^{L})$</td></tr>
+      <tr><td><b>Explanation</b></td><td>index of the first wrong step</td><td class="cx">$O(|\mathcal{S}|\,L)$</td></tr>
+      <tr><td><b>Suggestion</b></td><td>correction for the first mistake<span class="note">online teacher correction</span></td><td class="cx">$O(L)$</td></tr>
+      <tr><td><b>Demonstration</b></td><td>all the correct steps<span class="note">online teacher demonstration</span></td><td class="cx">$O(1)$</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    Reward-only learning is <strong>exponential</strong> in the chain length $L$ — you essentially
+    enumerate every sequence. Feedback that merely localizes the first error collapses this to
+    a product; a constructive correction removes the dependence on $|\mathcal{S}|$ entirely; and a
+    demonstration solves it in one shot. The richer the language, the flatter the problem.
+    This is the engine of the whole paper.
+  </p>
+</section>
+
+<!-- ====================== FRAMEWORK ====================== -->
+<section id="framework">
+  <h2><span class="num">02</span>The framework: hypotheses, verifiers, and a new dimension</h2>
+
+  <p>
+    To make "information in feedback" rigorous, the paper introduces three objects. Each one
+    replaces a familiar piece of the bandit machinery with a language-native analogue.
+  </p>
+
+  <figure>
+    <img src="assets/interaction.png" alt="LLF interaction diagram" />
+    <figcaption>
+      <b>The LLF interaction loop.</b> A hidden hypothesis $\eta^*$ (e.g. the true game rules and board)
+      induces both a reward function $r_{\eta^*}$ and a feedback function $f_{\eta^*}$. The agent only
+      sees language feedback and must drive down regret against the hidden reward.
+    </figcaption>
+  </figure>
+
+  <h3>1 · The hypothesis</h3>
+  <p>
+    Instead of a parameter vector $\theta^*$, the environment is described by a
+    <em class="term">hypothesis</em> $\eta \in \mathcal{H}$ — a piece of <em>text</em> rich enough to
+    pin down both how rewards and how feedback are generated. A hypothesis might be a user's taste
+    profile, a game's rules plus its hidden board, or code. The reward mapping $\eta \mapsto r_\eta$
+    is assumed <em>known</em> (an LLM-as-judge can score an action given the rules); the true
+    hypothesis $\eta^*$ is <em>unknown</em>. This mirrors a linear bandit's known feature map and
+    unknown parameter — but in language.
+  </p>
+
+  <h3>2 · The hypothesis verifier</h3>
+  <p>
+    How does the agent extract information from a sentence? Through a
+    <em class="term">hypothesis verifier</em>, a loss $\ell(a, o, \eta) \in [0,1]$ that asks:
+    <em>is hypothesis $\eta$ consistent with feedback $o$ on action $a$?</em> Crucially this is
+    <strong>not</strong> a reward model and <strong>not</strong> a correctness oracle. It never
+    certifies that $\eta$ is true — it only flags when $\eta$ has been <em>contradicted</em> by what
+    was observed. Consistent ⇒ $\ell = 0$; incompatible ⇒ a positive penalty. Feedback is assumed
+    <em>unbiased</em>: the true hypothesis is always among the loss-minimizers.
+  </p>
+
+  <h3>3 · The transfer eluder dimension</h3>
+  <p>
+    The headline construct builds on the <a href="https://web.stanford.edu/~bvr/pubs/Eluder.pdf"
+    target="_blank" rel="noopener">eluder dimension</a> of Russo &amp; Van Roy
+    (2013)<sup class="refmark"><a href="#ref-eluder">2</a></sup> — a way to measure how many times a
+    reward function can still <em>surprise</em> an optimistic learner before its value everywhere is
+    pinned down. That number controls how fast classic reward-based exploration converges. The
+    <em class="term">transfer eluder dimension</em> $\dim_{TE}$ measures something subtler: not how many
+    surprises remain in <em>reward</em> space, but how effectively consistency-on-feedback
+    <em>transfers</em> into certainty about reward. An action is <em>transfer-independent</em> of past
+    actions if two hypotheses can agree on all the feedback seen so far yet still disagree sharply about
+    its reward.
+  </p>
+
+  <div class="callout">
+    <span class="k">The central theorem (informally)</span>
+    Whenever feedback can discriminate rewards at least as well as the rewards discriminate themselves,
+    $$\dim_{TE}(\mathcal{H}, \ell, \epsilon) \;\le\; \dim_{E}(\mathcal{R}_{\mathcal{H}}, \epsilon).$$
+    Learning from informative language feedback is <strong>never harder</strong> than learning from
+    reward — and, as the reasoning-chain table showed, often <strong>exponentially easier</strong>.
+  </div>
+</section>
+
+<!-- ====================== ALGORITHM ====================== -->
+<section id="algorithm">
+  <h2><span class="num">03</span>HELiX: turning the theory into an algorithm</h2>
+
+  <p>
+    <strong>HELiX</strong> — <em>Hypothesis Elimination using Language-informed eXploration</em> — is a
+    UCB-style algorithm that follows the <em>optimism in the face of uncertainty</em> principle, but
+    over a space of <em>text hypotheses</em>. At each step it keeps a confidence set $\mathcal{H}_t$ of
+    hypotheses still consistent with the feedback, then makes one of two moves:
+  </p>
+
+  <ul>
+    <li><strong>Exploit</strong> when there is consensus: if some action is simultaneously optimal for
+      <em>every</em> surviving hypothesis, take it. (Disagreement about the world doesn't matter if
+      everyone agrees on what to do.)</li>
+    <li><strong>Explore</strong> otherwise: take the most <em>optimistic</em> action — the one some
+      surviving hypothesis rates highest — to gather information that prunes the set.</li>
+  </ul>
+
+  <p>
+    The consensus check is a genuine departure from textbook UCB. It acts as a stopping criterion:
+    once the candidates agree on the best action, HELiX stops exploring even if it is still uncertain
+    about the exact rewards. This is exactly the behavior you want when feedback reveals the optimal
+    action directly without revealing the full reward structure.
+  </p>
+
+  <div class="theorem-wrap callout slate">
+    <span class="k">Regret guarantee</span>
+    With only boundedness assumed on the verifier loss, HELiX achieves
+    $$\mathrm{Regret}(T) \;=\; \widetilde{O}\!\left(T^{3/4}\,\big(\log N(\mathcal{H},\epsilon_T)\big)^{1/4}\sqrt{\dim_{TE}(\mathcal{H},\ell,\epsilon_T)}\right).$$
+    The $T^{3/4}$ rate is the honest price of making <em>almost no</em> structural assumptions; with a
+    squared-loss verifier it sharpens to the familiar $\widetilde{O}(\sqrt{T})$.
+  </div>
+
+  <h3>The LLM implementation</h3>
+  <p>
+    The theoretical algorithm searches over an exponential hypothesis space — impossible in practice.
+    The key practical contribution is approximating it with three LLM calls per step, yielding an
+    inference-time strategy that is a principled alternative to a single chain-of-thought (CoT):
+  </p>
+
+  <ol>
+    <li><strong>Sample hypotheses + actions.</strong> Prompt the LLM for $N$ diverse "thinking traces"
+      (hypotheses) consistent with the history, each with its best action. The LLM implicitly acts as
+      the verifier, filtering inconsistent hypotheses.</li>
+    <li><strong>Build the score matrix.</strong> Use an LLM reward-mapping $R_{\text{LLM}}(\eta, a)$ to
+      score every candidate action under every hypothesis, forming a matrix $S_t$.</li>
+    <li><strong>Decide.</strong> Read the explore/exploit decision off $S_t$ via row-wise argmaxes.</li>
+  </ol>
+
+  <p>
+    Why structure exploration this way rather than trust the model to explore on its own? Because
+    whether LLMs can balance exploration and exploitation <em>in context</em> is far from settled —
+    studies that probe them on bandit-style decision problems find the ability uneven and often in need
+    of explicit scaffolding<sup class="refmark"><a href="#ref-evolve">3</a></sup>. HELiX supplies that
+    scaffolding as an external rule inspired by a provable algorithm instead of hoping it emerges from a single CoT.
+  </p>
+
+  <figure>
+    <img src="assets/alg_diagram.png" alt="HELiX algorithm flow diagram" />
+    <figcaption>
+      <b>HELiX at inference time.</b> From the interaction history the LLM samples feedback-consistent
+      hypotheses (H1–H3) and a best action for each (A1–A3). Every action is then scored under every
+      hypothesis to form the score matrix. If a single action is the row-maximizer for <em>all</em>
+      hypotheses (here, A2), HELiX <b>exploits</b>; otherwise it <b>explores</b>.
+    </figcaption>
+  </figure>
+
+  <h3 id="decisionrules">The decision rule, precisely</h3>
+  <p>
+    The explore/exploit choice is a small piece of linear algebra on $S_t$. For each hypothesis (row),
+    take the set of highest-scoring actions. Then:
+  </p>
+  <ul>
+    <li><strong>Consensus (Exploit):</strong> if the intersection of these row-argmax sets is
+      non-empty, that shared action is chosen — it is optimal for everyone.</li>
+    <li><strong>No consensus (Explore):</strong> if the intersection is empty, eliminate all but the
+      highest-scoring hypotheses, then pick the action with the globally highest score.</li>
+    <li><strong>Tie-breaking via re-scoring:</strong> ties are broken by subtracting each action's
+      average score under a random reference policy $\pi_{\text{ref}}$ — an <em>advantage</em> that
+      cancels an LLM's per-hypothesis scoring quirks and favors <em>discriminative</em> hypotheses over
+      permissive ones (e.g. "fire along the edge" beats "fire anywhere"). Remaining ties prefer
+      actions generated earlier.</li>
+  </ul>
+
+  <figure>
+    <img src="assets/algorithm_steps.png" alt="HELiX explore-exploit decision rule, consensus vs no-consensus" />
+    <figcaption>
+      <b>The two cases, side by side.</b> <b>(A)</b> The row-argmax sets all contain A2 — their
+      intersection is $\{$A2$\}$, so HELiX exploits A2. <b>(B)</b> The intersection is empty, so HELiX
+      explores, choosing the globally top-scoring action and tie-breaking with the reference policy.
+      You can reproduce both panels yourself in the <a href="#matrix">score-matrix sandbox</a> below.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ====================== PLAY ====================== -->
+<section id="play">
+  <h2><span class="num">04</span>Play the environments</h2>
+  <p>
+    HELiX is evaluated on language-feedback games where the agent never sees a reward — only words and
+    a partially-revealed map. Play them yourself to feel the information problem the agent faces. The
+    <strong>hidden reward</strong> is tracked silently and revealed in the log, exactly as in the paper.
+  </p>
+
+  <!-- Battleship -->
+  <div class="widget" id="bs-widget">
+    <h4>🚢 Battleship <span class="pill explore" id="bs-status">find the ships</span></h4>
+    <p class="sub">
+      Three hidden ships (lengths 5, 4, 3) on a 6×6 grid. Fire one cell per turn; you get only
+      <em>hit / miss / sunk</em> language feedback. Sink all three within 20 shots. Hidden reward:
+      a hit scores 0.5, sinking a ship scores 1.0.
+    </p>
+    <div class="widget-grid two">
+      <div>
+        <div id="bs-board"></div>
+        <div class="controls">
+          <button class="btn ghost" id="bs-reset">New game</button>
+          <button class="btn" id="bs-helix">What would HELiX do? →</button>
+        </div>
+        <p class="statline" id="bs-stat"></p>
+      </div>
+      <div>
+        <div class="feedlog" id="bs-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minesweeper -->
+  <!-- <div class="widget" id="ms-widget">
+    <h4>💣 Minesweeper <span class="pill explore" id="ms-status">clear the board</span></h4>
+    <p class="sub">
+      A 6×6 grid with 6 hidden mines. Reveal cells; a number is the count of adjacent mines, and a
+      blank cascades. Left-click reveals, right-click (or the Flag toggle) marks. Hidden reward:
+      +0.2 per safe reveal, +1.0 for clearing the board, −0.2 for an invalid move.
+    </p>
+    <div class="widget-grid two">
+      <div>
+        <div id="ms-board"></div>
+        <div class="controls">
+          <button class="btn ghost" id="ms-reset">New game</button>
+          <button class="btn ghost" id="ms-flag">🚩 Flag mode: off</button>
+        </div>
+        <p class="statline" id="ms-stat"></p>
+      </div>
+      <div>
+        <div class="feedlog" id="ms-log"></div>
+      </div>
+    </div>
+  </div> -->
+</section>
+
+<!-- ====================== SCORE MATRIX ====================== -->
+<section id="matrix">
+  <h2><span class="num">05</span>Build a score matrix, step by step</h2>
+  <p>
+    This is the heart of HELiX. The board below is the <strong>same Battleship board</strong> you played
+    above — fire a shot on either one and both update. Walk through the algorithm one stage at a time and
+    watch the score matrix get built and read. The "LLM" here is a transparent heuristic so you can see
+    exactly why each score lands where it does — but the <em>mechanism</em> (sample → score → consensus
+    check → explore/exploit → tie-break) is exactly the paper's.
+  </p>
+
+  <div class="widget" id="sm-widget">
+    <h4>🔢 HELiX score-matrix sandbox</h4>
+    <p class="sub" id="sm-narration">Press <b>Sample hypotheses</b> to begin.</p>
+
+    <div class="widget-grid two">
+      <div>
+        <div id="sm-board"></div>
+        <p class="hypo-note" id="sm-boardnote">Same board as <i>Play the environments</i> above — click any cell to fire.</p>
+      </div>
+      <div>
+        <div id="sm-hyps"></div>
+      </div>
+    </div>
+
+    <div id="sm-matrixwrap" style="overflow-x:auto; margin-top:18px; position:relative;"></div>
+    <div class="decision" id="sm-decision" style="display:none;"></div>
+
+    <div class="controls">
+      <button class="btn" id="sm-step">Sample hypotheses</button>
+      <button class="btn ghost" id="sm-new">New game</button>
+      <button class="btn ghost" id="sm-piref" aria-pressed="false">+ π_ref re-scoring: off</button>
+    </div>
+    <p class="hypo-note" id="sm-pireftip" style="margin-top:10px;">
+      Core HELiX uses only the hypotheses' own actions. <b>π_ref re-scoring</b> is an
+      <em>optional add-on</em>: it samples a few <em>random</em> actions as a baseline and subtracts them,
+      turning raw scores into <em>advantages</em>. Toggle it to compare the original pick with the
+      re-scored pick.
+    </p>
+  </div>
+
+  <p class="hypo-note">
+    Tip: fire a few shots (here or in the game above) to grow a hit-streak. When the hypotheses point
+    in different directions, HELiX <b>explores</b>; when they all agree on the same next cell, it
+    <b>exploits</b>. Any shot resets the reasoning so you can re-run it on the new board.
+  </p>
+</section>
+
+<!-- ====================== RESULTS ====================== -->
+<section id="results">
+  <h2><span class="num">06</span>Does it work?</h2>
+  <p>
+    Across Wordle, Battleship, and Minesweeper, HELiX consistently beats a chain-of-thought baseline
+    and its own ablation without the consensus exploitation step. The gap is largest exactly where
+    information-gathering matters most — Minesweeper — confirming that strategic exploration, not raw
+    LLM cleverness, is doing the work. All runs use Claude&nbsp;3.5&nbsp;Sonnet&nbsp;(v2).
+  </p>
+
+  <figure>
+    <div class="widget-grid two" style="gap:14px;">
+      <img src="assets/reward_progression_battleship.png" alt="Battleship cumulative reward" style="border:1px solid var(--rule); border-radius:10px; padding:8px; background:#fff;" />
+      <img src="assets/reward_progression_minesweeper.png" alt="Minesweeper cumulative reward" style="border:1px solid var(--rule); border-radius:10px; padding:8px; background:#fff;" />
+    </div>
+    <figcaption>
+      <b>Cumulative hidden reward vs. interaction steps.</b> HELiX (with reference-policy re-scoring)
+      leads throughout; shaded bands are standard error across scenarios. Removing the exploitation
+      step or dropping to plain CoT both cost reward — most dramatically on Minesweeper, where careful
+      exploration is essential.
+    </figcaption>
+  </figure>
+
+  <p>
+    A note of honesty from the authors: HELiX assumes the LLM can pick a good action under a given
+    hypothesis and can score actions fairly across hypotheses. These assumptions don't hold for every
+    model or task. The contribution is less "a finished agent" than a <em>specification</em> of the
+    properties an LLM must have to be a principled language-feedback learner — and a guarantee that, if
+    it has them, learning is efficient.
+  </p>
+</section>
+
+<!-- ====================== TAKEAWAYS ====================== -->
+<section id="takeaways">
+  <h2><span class="num">07</span>Takeaways</h2>
+  <ul>
+    <li><strong>Language feedback is a first-class signal,</strong> not a disguised reward. The
+      transfer eluder dimension quantifies how much it helps.</li>
+    <li><strong>Informative feedback is never worse than reward,</strong> and can be exponentially
+      better — formalized via $\dim_{TE} \le \dim_E$.</li>
+    <li><strong>HELiX</strong> makes this constructive: sample hypotheses, cross-score them against
+      actions, exploit on consensus and explore on optimism — with a sublinear regret bound.</li>
+    <li><strong>It runs on today's LLMs</strong> as an inference-time alternative to chain-of-thought,
+      and it wins on language-feedback games.</li>
+  </ul>
+
+  <figure>
+    <img src="assets/llf_venn_diag.png" alt="LLF subsumes RL, IGL, preference-based RL, imitation learning" />
+    <figcaption>
+      <b>LLF as a unifying lens.</b> Reinforcement learning, interaction-grounded learning
+      (<a href="https://arxiv.org/abs/2106.04887" target="_blank" rel="noopener">Xie et al., 2021</a>),
+      preference-based RL
+      (<a href="https://www.jmlr.org/papers/v18/16-634.html" target="_blank" rel="noopener">Wirth et al., 2017</a>),
+      multi-objective RL
+      (<a href="https://www.jair.org/index.php/jair/article/view/10836" target="_blank" rel="noopener">Roijers et al., 2013</a>),
+      and imitation learning
+      (<a href="https://ai.stanford.edu/~ang/papers/icml00-irl.pdf" target="_blank" rel="noopener">Ng &amp; Russell, 2000</a>;
+      <a href="https://arxiv.org/abs/1406.5979" target="_blank" rel="noopener">Ross &amp; Bagnell, 2014</a>)
+      all fall out as special cases — each a particular choice of feedback function inside the LLF
+      framework.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ====================== REFERENCES ====================== -->
+<section id="references">
+  <h2><span class="num">08</span>References &amp; further reading</h2>
+  <ol class="reflist">
+    <li id="ref-llf">
+      C.-A. Cheng, A. Kolobov, D. Misra, A. Nie, and A. Swaminathan.
+      <a href="https://arxiv.org/abs/2312.06853" target="_blank" rel="noopener">LLF-Bench: Benchmark
+      for Interactive Learning from Language Feedback</a>. arXiv:2312.06853, 2023.
+      <span class="refnote">Introduces the LLF paradigm and benchmark this work formalizes — agents that
+      learn interactively from natural-language feedback in place of rewards.</span>
+    </li>
+    <li id="ref-eluder">
+      D. Russo and B. Van Roy.
+      <a href="https://web.stanford.edu/~bvr/pubs/Eluder.pdf" target="_blank" rel="noopener">Eluder
+      Dimension and the Sample Complexity of Optimistic Exploration</a>.
+      <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 2013.
+      <span class="refnote">Introduces the eluder dimension, the reward-space complexity measure that
+      the transfer eluder dimension generalizes.</span>
+    </li>
+    <li id="ref-evolve">
+      A. Nie, Y. Su, B. Chang, J. N. Lee, E. H. Chi, Q. V. Le, and M. Chen.
+      <a href="https://arxiv.org/abs/2410.06238" target="_blank" rel="noopener">EVOLvE: Evaluating and
+      Optimizing LLMs For In-Context Exploration</a>. <em>International Conference on Machine Learning
+      (ICML)</em>, 2025.
+      <span class="refnote">Evaluates how well LLMs explore under uncertainty on bandit problems and how
+      to improve them — motivating HELiX's explicit exploration scaffolding.</span>
+    </li>
+  </ol>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <strong>Formalizing Learning from Language Feedback with Provable Guarantees.</strong>
+      Wanqiao Xu, Allen Nie, Ruijie Zheng, Aditya Modi, Adith Swaminathan, Ching-An Cheng.
+    </p>
+    <p>
+      This is an explanatory blog companion to the paper. Figures are reproduced from the manuscript;
+      the interactive demos use transparent heuristics in place of an LLM so the mechanism is visible.
+    </p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

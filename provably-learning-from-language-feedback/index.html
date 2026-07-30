@@ -8,7 +8,13 @@
 
 <script>
   MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      macros: {
+        argmin: '\\mathop{\\mathrm{arg\\,min}}',
+        argmax: '\\mathop{\\mathrm{arg\\,max}}'
+      }
+    },
     svg: { fontCache: 'global' }
   };
 </script>
@@ -259,7 +265,8 @@ table.paper td .note { font-size: 12.5px; color: var(--ink-muted); font-style: i
 .btn:hover { background: #9d4631; }
 .btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); }
 .btn.ghost:hover { border-color: var(--clay); color: var(--clay); background: var(--clay-bg); }
-.btn:disabled { opacity: .45; cursor: default; }
+.btn:disabled { opacity: .35; cursor: default; pointer-events: none; }
+.btn.ghost:disabled { color: var(--ink-faint); border-color: var(--rule-soft); background: transparent; }
 .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
 
 .feedlog {
@@ -555,47 +562,71 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   </div>
 
   <p>
-    The same task ranges from exponential to constant difficulty, and the only thing that changed is
-    what the feedback says. Reward-only learning must enumerate; feedback that locates the first
-    error decomposes the problem; a correction removes the dependence on $|\mathcal{S}|$; a
-    demonstration ends the game in one round. This spectrum is exactly what the transfer eluder
-    dimension measures.
+    The same task ranges from exponential to constant sample complexity, and the only thing that changed is
+    what the feedback says. Reward-only learning must enumerate all combinations of the steps. Feedback that locates the first
+    error allows a policy to focus on trying to get one step correct at a time. A correction removes the dependence on $|\mathcal{S}|$. A
+    demonstration ends the game in one round. 
   </p>
 
   <div class="callout">
     <span class="k">Transfer Eluder Dimension (informally)</span>
     <!-- we show that if feedback can discriminate rewards, the transfer eluder dimension is no larger than the eluder dimension for the reward class H. -->
-    If feedback is informative enough to discriminate between different reward functions, where $\mathcal{R}_{\mathcal{H}} = \{ r_\eta : \eta \in \mathcal{H} \}$ is the effective reward class of $\mathcal{H}$. Then,
+    If feedback is informative enough to discriminate between different reward functions, and $\mathcal{R}_{\mathcal{H}} = \{ r_\eta : \eta \in \mathcal{H} \}$ is the effective reward class of $\mathcal{H}$. Then,
     $$\dim_{TE}(\mathcal{H}, \ell, \epsilon) \;\le\; \dim_{E}(\mathcal{R}_{\mathcal{H}}, \epsilon).$$
     Learning from discriminative language feedback is <strong>never harder</strong> than learning from
-    reward — and, as the reasoning-chain table showed, can be <strong>exponentially easier</strong>.
+    reward — and, as the reasoning-chain example showed, can be <strong>exponentially easier</strong>.
   </div>
 </section>
 
 <!-- ====================== ALGORITHM ====================== -->
 <section id="algorithm">
-  <h2><span class="num">03</span>HELiX: turning the theory into an algorithm</h2>
+  <h2><span class="num">03</span>HELiX: an algorithm for learning from language feedback</h2>
 
   <p>
     <strong>HELiX</strong> — <em>Hypothesis Elimination using Language-informed eXploration</em> — is a
     UCB-style algorithm that follows the <em>optimism in the face of uncertainty</em> principle, but
-    over a space of <em>text hypotheses</em>. At each step it keeps a confidence set $\mathcal{H}_t$ of
-    hypotheses still consistent with the feedback, then makes one of two moves:
+    over a space of <em>text hypotheses</em>. Given a hypothesis $\eta\in\mathcal{H}$, let $\pi_\eta$
+    denote its optimal policy, and (with a slight abuse of notation) let
+    $r_\eta(\pi) := \sum_{a\in\mathcal{A}} r_\eta(a)\,\pi(a)$ denote the expected reward of policy
+    $\pi$ under $\eta$.
+  </p>
+
+  <figure>
+    <img src="assets/alg_box.png" alt="Algorithm 1 — HELiX: Hypothesis Elimination using Language-informed Exploration (pseudocode from the paper)" style="width:70%; margin:0 auto;" />
+    <figcaption>
+      <b>Algorithm 1, from the paper.</b> Line 5 eliminates hypotheses inconsistent with the observed
+      feedback; line 7 checks for a consensus optimal action (exploit); lines 10–11 take the most
+      optimistic action otherwise (explore).
+    </figcaption>
+  </figure>
+
+  <p>
+    At step $t$, the algorithm maintains a confidence set $\mathcal{H}_t$ of hypotheses that remain
+    approximately consistent with observed actions and feedback: it keeps every $\eta$ whose average
+    hypothesis-verifier loss $\frac{1}{t}\sum_i \ell(A_i, O_i, \eta)$ is within $\epsilon_t$ of the
+    best achievable in $\mathcal{H}$ (line 5). It then makes one of two moves:
   </p>
 
   <ul>
-    <li><strong>Exploit</strong> when there is consensus: if some action is simultaneously optimal for
-      <em>every</em> surviving hypothesis, take it. (Disagreement about the world doesn't matter if
-      everyone agrees on what to do.)</li>
-    <li><strong>Explore</strong> otherwise: take the most <em>optimistic</em> action — the one some
-      surviving hypothesis rates highest — to gather information that prunes the set.</li>
+    <li><strong>Exploit on consensus (lines 6–8).</strong> HELiX computes a minimax policy
+      $\pi_p \in \argmin_{\pi\in\Pi} \max_{\eta\in\mathcal{H}_t} \big[r_\eta(\pi_\eta) - r_\eta(\pi)\big]$.
+      If the minimax regret is zero,
+      $$\min_{\pi\in\Pi} \max_{\eta\in\mathcal{H}_t} \big[r_\eta(\pi_\eta) - r_\eta(\pi)\big] = 0,$$
+      then the minimizer $\pi_p$ only selects actions that are <em>simultaneously optimal for every
+      hypothesis</em> in the confidence set — disagreement about the world doesn't matter if everyone
+      agrees on what to do — and HELiX plays $A_t \sim \pi_p(\cdot)$.</li>
+    <li><strong>Explore optimistically otherwise (lines 9–11).</strong> If no consensus action exists,
+      HELiX identifies the hypothesis $\eta_o$ achieving maximal optimistic reward and follows its
+      optimal policy, $(\pi_o, \eta_o) \in \argmax_{\pi \in \Pi} \max_{\eta \in \mathcal{H}_t} r_\eta(\pi)$,
+      gathering feedback that prunes $\mathcal{H}_t$ further.</li>
   </ul>
 
   <p>
-    The consensus check is a genuine departure from textbook UCB. It acts as a stopping criterion:
-    once the candidates agree on the best action, HELiX stops exploring even if it is still uncertain
-    about the exact rewards. This is exactly the behavior you want when feedback reveals the optimal
-    action directly without revealing the full reward structure.
+    The consensus check acts as a stopping
+    criterion: once the candidates agree on the best action, HELiX stops exploring even if it is still
+    uncertain about the exact rewards. This matters for non-discriminative problems — feedback in a
+    trivial LLF problem can directly reveal the optimal action but nothing about the reward, and the
+    stopping criterion ensures the algorithm will not over-explore after identifying an optimal action.
   </p>
 
   <div class="theorem-wrap callout slate">
@@ -606,7 +637,109 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     squared-loss verifier it sharpens to the familiar $\widetilde{O}(\sqrt{T})$.
   </div>
 
-  <h3>The LLM implementation</h3>
+  <p>
+    A useful point of contrast: directly querying an LLM for an action by prompting with the
+    interaction history — chain-of-thought (CoT) reasoning with history — is similar to drawing
+    actions from $\pi_\eta$ where $\eta$ is randomly sampled from
+    $\argmin_{\eta'\in\mathcal{H}} \sum_i \ell(A_i, O_i, \eta')$. Such a greedy algorithm does not
+    necessarily explore, and in RL it does not always have low regret; since RL is a special case of
+    discriminative LLF, we conjecture the same holds for general LLF. 
+  </p>
+
+</section>
+
+<!-- ====================== PLAY ====================== -->
+<section id="play">
+  <h2><span class="num">04</span>Play the algorithm</h2>
+  <p>
+    HELiX is evaluated on language-feedback games where the agent never sees a reward: only words and
+    a partially-revealed map. Before watching the algorithm, <strong>play a round yourself</strong> —
+    fire at least three or four shots and notice what each reply does to your thinking. A miss quietly
+    shrinks where ships can hide. A hit changes everything: suddenly you're weighing theories —
+    <em>which way does the ship run? how long is it?</em> — and choosing a shot to test them. That
+    little cycle of forming, testing, and discarding hypotheses is exactly what HELiX formalizes.
+    Once you land a hit, the guide under the board will point you to the algorithm.
+  </p>
+
+  <!-- Battleship -->
+  <div class="widget" id="bs-widget">
+    <h4>🚢 Battleship <span class="pill explore" id="bs-status">find the ships</span></h4>
+    <p class="sub">
+      Three hidden ships (lengths 5, 4, 3) on a 6×6 grid. Fire one cell per turn; the only feedback
+      is language: <em>hit / miss / sunk</em>. Sink all three within 20 shots.
+    </p>
+    <div class="widget-grid two">
+      <div>
+        <div id="bs-board"></div>
+        <div class="controls">
+          <button class="btn ghost" id="bs-reset">New game</button>
+          <button class="btn ghost bs-back" title="Step back one shot" aria-label="Step back one shot" disabled>←</button>
+          <button class="btn ghost bs-fwd" title="Replay next shot" aria-label="Replay next shot" disabled>→</button>
+          <button class="btn" id="bs-helix">What would HELiX do? →</button>
+        </div>
+        <p class="statline" id="bs-stat"></p>
+        <p class="hypo-note" id="bs-hint"></p>
+      </div>
+      <div>
+        <div class="feedlog" id="bs-log"></div>
+        <p class="hypo-note">
+          The log is what the agent actually observes: pure language feedback.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ====================== SCORE MATRIX ====================== -->
+<section id="matrix">
+  <h2><span class="num">05</span>Build a score matrix, step by step</h2>
+  <p>
+    This is the heart of HELiX. The board below is the <strong>same Battleship board</strong> you played
+    above — fire a shot on either one and both update. Walk through the algorithm one stage at a time and
+    watch the score matrix get built and read. The "LLM" here is a transparent heuristic so you can see
+    exactly why each score lands where it does — but the <em>mechanism</em> (sample → score → consensus
+    check → explore/exploit → tie-break) is exactly the paper's. How a real LLM fills each of these
+    roles is spelled out in <a href="#llm-implementation">§06</a>.
+  </p>
+
+  <div class="widget" id="sm-widget">
+    <h4>🔢 HELiX score-matrix sandbox</h4>
+    <p class="sub" id="sm-narration">Press <b>Sample hypotheses</b> to begin.</p>
+
+    <div class="widget-grid two">
+      <div>
+        <div id="sm-board"></div>
+        <p class="hypo-note" id="sm-boardnote">Same board as <i>Play the algorithm</i> above — click any cell to fire.</p>
+      </div>
+      <div>
+        <div id="sm-hyps"></div>
+      </div>
+    </div>
+
+    <div id="sm-matrixwrap" style="overflow-x:auto; margin-top:18px; position:relative;"></div>
+    <div class="decision" id="sm-decision" style="display:none;"></div>
+
+    <div class="controls">
+      <button class="btn" id="sm-step">Sample hypotheses</button>
+      <button class="btn ghost" id="sm-new">New game</button>
+      <button class="btn ghost bs-back" title="Step back one shot" aria-label="Step back one shot" disabled>←</button>
+      <button class="btn ghost bs-fwd" title="Replay next shot" aria-label="Replay next shot" disabled>→</button>
+      <button class="btn ghost" id="sm-piref" aria-pressed="false">+ π_ref re-scoring: off</button>
+    </div>
+    <p class="hypo-note" id="sm-pireftip" style="margin-top:10px;">
+      Core HELiX uses only the hypotheses' own actions. <b>π_ref re-scoring</b> is an
+      <em>optional add-on</em>: it samples a few <em>random</em> actions as a baseline and subtracts them,
+      turning raw scores into <em>advantages</em>. Toggle it to compare the original pick with the
+      re-scored pick.
+    </p>
+  </div>
+
+</section>
+
+<!-- ====================== LLM IMPLEMENTATION ====================== -->
+<section id="llm-implementation">
+  <h2><span class="num">06</span>Implementing HELiX with large language models</h2>
   <p>
     The theoretical algorithm searches over an exponential hypothesis space — impossible in practice.
     The key practical contribution is approximating it with three LLM calls per step, yielding an
@@ -663,97 +796,14 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
       <b>The two cases, side by side.</b> <b>(A)</b> The row-argmax sets all contain A2 — their
       intersection is $\{$A2$\}$, so HELiX exploits A2. <b>(B)</b> The intersection is empty, so HELiX
       explores, choosing the globally top-scoring action and tie-breaking with the reference policy.
-      You can reproduce both panels yourself in the <a href="#matrix">score-matrix sandbox</a> below.
+      You can reproduce both panels yourself in the <a href="#matrix">score-matrix sandbox</a> above.
     </figcaption>
   </figure>
 </section>
 
-<!-- ====================== PLAY ====================== -->
-<section id="play">
-  <h2><span class="num">04</span>Play the environments</h2>
-  <p>
-    HELiX is evaluated on language-feedback games where the agent never sees a reward: only words and
-    a partially-revealed map. Play them yourself to feel the information problem the agent faces. The
-    <strong>reward</strong> is tracked silently and shown in the log so you can follow along; the
-    agent itself never observes it.
-  </p>
-
-  <!-- Battleship -->
-  <div class="widget" id="bs-widget">
-    <h4>🚢 Battleship <span class="pill explore" id="bs-status">find the ships</span></h4>
-    <p class="sub">
-      Three hidden ships (lengths 5, 4, 3) on a 6×6 grid. Fire one cell per turn; you get only
-      <em>hit / miss / sunk</em> language feedback. Sink all three within 20 shots. Reward (never observed by the agent):
-      a hit scores 0.5, sinking a ship scores 1.0.
-    </p>
-    <div class="widget-grid two">
-      <div>
-        <div id="bs-board"></div>
-        <div class="controls">
-          <button class="btn ghost" id="bs-reset">New game</button>
-          <button class="btn" id="bs-helix">What would HELiX do? →</button>
-        </div>
-        <p class="statline" id="bs-stat"></p>
-      </div>
-      <div>
-        <div class="feedlog" id="bs-log"></div>
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- ====================== SCORE MATRIX ====================== -->
-<section id="matrix">
-  <h2><span class="num">05</span>Build a score matrix, step by step</h2>
-  <p>
-    This is the heart of HELiX. The board below is the <strong>same Battleship board</strong> you played
-    above — fire a shot on either one and both update. Walk through the algorithm one stage at a time and
-    watch the score matrix get built and read. The "LLM" here is a transparent heuristic so you can see
-    exactly why each score lands where it does — but the <em>mechanism</em> (sample → score → consensus
-    check → explore/exploit → tie-break) is exactly the paper's.
-  </p>
-
-  <div class="widget" id="sm-widget">
-    <h4>🔢 HELiX score-matrix sandbox</h4>
-    <p class="sub" id="sm-narration">Press <b>Sample hypotheses</b> to begin.</p>
-
-    <div class="widget-grid two">
-      <div>
-        <div id="sm-board"></div>
-        <p class="hypo-note" id="sm-boardnote">Same board as <i>Play the environments</i> above — click any cell to fire.</p>
-      </div>
-      <div>
-        <div id="sm-hyps"></div>
-      </div>
-    </div>
-
-    <div id="sm-matrixwrap" style="overflow-x:auto; margin-top:18px; position:relative;"></div>
-    <div class="decision" id="sm-decision" style="display:none;"></div>
-
-    <div class="controls">
-      <button class="btn" id="sm-step">Sample hypotheses</button>
-      <button class="btn ghost" id="sm-new">New game</button>
-      <button class="btn ghost" id="sm-piref" aria-pressed="false">+ π_ref re-scoring: off</button>
-    </div>
-    <p class="hypo-note" id="sm-pireftip" style="margin-top:10px;">
-      Core HELiX uses only the hypotheses' own actions. <b>π_ref re-scoring</b> is an
-      <em>optional add-on</em>: it samples a few <em>random</em> actions as a baseline and subtracts them,
-      turning raw scores into <em>advantages</em>. Toggle it to compare the original pick with the
-      re-scored pick.
-    </p>
-  </div>
-
-  <p class="hypo-note">
-    Tip: fire a few shots (here or in the game above) to grow a hit-streak. When the hypotheses point
-    in different directions, HELiX <b>explores</b>; when they all agree on the same next cell, it
-    <b>exploits</b>. Any shot resets the reasoning so you can re-run it on the new board.
-  </p>
-</section>
-
 <!-- ====================== RESULTS ====================== -->
 <section id="results">
-  <h2><span class="num">06</span>Does it work?</h2>
+  <h2><span class="num">07</span>Does it work?</h2>
   <p>
     Across Battleship and Minesweeper, HELiX consistently beats a chain-of-thought baseline
     and its own ablation without the consensus exploitation step. The gap is largest exactly where
@@ -785,7 +835,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 
 <!-- ====================== TAKEAWAYS ====================== -->
 <section id="takeaways">
-  <h2><span class="num">07</span>Takeaways</h2>
+  <h2><span class="num">08</span>Takeaways</h2>
   <ul>
     <li><strong>Language feedback is a first-class signal,</strong> not a disguised reward. The
       transfer eluder dimension quantifies how much it helps.</li>
@@ -817,7 +867,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 
 <!-- ====================== REFERENCES ====================== -->
 <section id="references">
-  <h2><span class="num">08</span>References &amp; further reading</h2>
+  <h2><span class="num">09</span>References &amp; further reading</h2>
   <ol class="reflist">
     <li id="ref-llf">
       C.-A. Cheng, A. Kolobov, D. Misra, A. Nie, and A. Swaminathan.
@@ -853,6 +903,6 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   </div>
 </footer>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

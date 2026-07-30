@@ -1,7 +1,7 @@
 /* =====================================================================
    HELiX blog — interactive demos
-   - Battleship (language feedback, hidden reward)
-   - Minesweeper (language feedback, hidden reward)
+   - Battleship (language feedback, reward unobserved by the agent)
+   - Minesweeper (language feedback, reward unobserved by the agent)
    - Score-matrix sandbox (the HELiX decision rule, made visible)
    ===================================================================== */
 
@@ -26,6 +26,7 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 const Battleship = (() => {
   const SHIPS = [5, 4, 3];
   let grid, ships, shots, sunkCount, reward, over, turns;
+  let history = [], hptr = -1;   // undo/redo snapshots; drives BOTH boards via sync()
 
   function placeShips() {
     grid = Array.from({ length: N }, () => Array(N).fill(0)); // 0 empty
@@ -58,9 +59,11 @@ const Battleship = (() => {
     shots = Array.from({ length: N }, () => Array(N).fill(0)); // 0 none,1 miss,2 hit
     sunkCount = 0; reward = 0; over = false; turns = 0;
     render();
-    log(`<span class="muted">New game — three ships hidden (lengths 5, 4, 3). Fire a cell to begin. The reward is hidden from the agent.</span>`, true);
+    log(`<span class="muted">Three ships are hidden in these waters — lengths 5, 4, and 3. You have 20 shots. Fire when ready.</span>`, true);
     status("find the ships", "explore");
     stat(); sync();
+    history = []; hptr = -1;
+    pushHistory();
   }
 
   function fire(r, c) {
@@ -77,23 +80,58 @@ const Battleship = (() => {
       if (ship.hits === ship.len) {
         sunkCount++;
         reward += 1.0;
-        log(`<b>${cellName(r, c)}</b> → <span class="fb">Hit and SUNK!</span> A ship is destroyed. <span class="rw">[hidden reward +1.0]</span>`);
+        log(`<b>${cellName(r, c)}</b> → <span class="fb">Hit and SUNK!</span> A ship is destroyed. <span class="rw">[reward +1.0]</span>`);
       } else {
         reward += 0.5;
-        log(`<b>${cellName(r, c)}</b> → <span class="fb">Hit!</span> A ship was struck but not sunk. <span class="rw">[hidden reward +0.5]</span>`);
+        log(`<b>${cellName(r, c)}</b> → <span class="fb">Hit!</span> A ship was struck but not sunk. <span class="rw">[reward +0.5]</span>`);
       }
     }
     if (sunkCount === SHIPS.length) {
       over = true;
-      log(`<span class="fb">All ships sunk in ${turns} shots!</span> Final hidden reward <span class="rw">${reward.toFixed(1)}</span>.`);
+      log(`<span class="fb">All ships sunk in ${turns} shots!</span> Final reward <span class="rw">${reward.toFixed(1)}</span>.`);
       status("victory 🎉", "exploit");
     } else if (turns >= 20) {
       over = true;
       revealAll();
-      log(`<span class="fb">Out of turns.</span> ${sunkCount}/3 ships sunk. Hidden reward <span class="rw">${reward.toFixed(1)}</span>.`);
+      log(`<span class="fb">Out of turns.</span> ${sunkCount}/3 ships sunk. Reward <span class="rw">${reward.toFixed(1)}</span>.`);
       status("out of turns", "explore");
     }
     render(); stat(); sync();
+    pushHistory();
+  }
+
+  /* ---- shot history: back/forward replay (controls BOTH linked boards) ---- */
+  function snapshot() {
+    const st = document.getElementById("bs-status");
+    return {
+      shots: shots.map(r => r.slice()),
+      hits: ships.map(s => s.hits),
+      sunkCount, reward, over, turns,
+      log: document.getElementById("bs-log").innerHTML,
+      statusText: st.textContent, statusClass: st.className,
+    };
+  }
+  function pushHistory() {
+    history = history.slice(0, hptr + 1);   // firing after "back" discards the redo branch
+    history.push(snapshot());
+    hptr = history.length - 1;
+    updateNav();
+  }
+  function restore(snap) {
+    shots = snap.shots.map(r => r.slice());
+    ships.forEach((s, i) => s.hits = snap.hits[i]);
+    sunkCount = snap.sunkCount; reward = snap.reward; over = snap.over; turns = snap.turns;
+    document.getElementById("bs-log").innerHTML = snap.log;
+    const st = document.getElementById("bs-status");
+    st.textContent = snap.statusText; st.className = snap.statusClass;
+    render(); stat(); sync();   // sync() mirrors the restored position onto the sandbox board
+    updateNav();
+  }
+  function back() { if (hptr > 0) restore(history[--hptr]); }
+  function forward() { if (hptr < history.length - 1) restore(history[++hptr]); }
+  function updateNav() {
+    document.querySelectorAll(".bs-back").forEach(b => b.disabled = hptr <= 0);
+    document.querySelectorAll(".bs-fwd").forEach(b => b.disabled = hptr >= history.length - 1);
   }
 
   function revealAll() {
@@ -135,7 +173,28 @@ const Battleship = (() => {
   }
   function stat() {
     document.getElementById("bs-stat").innerHTML =
-      `Shots: <b>${turns}/20</b> · Ships sunk: <b>${sunkCount}/3</b> · <span class="muted">hidden reward</span> <b>${reward.toFixed(1)}</b>`;
+      `Shots: <b>${turns}/20</b> · Ships sunk: <b>${sunkCount}/3</b> · <span class="muted">reward</span> <b>${reward.toFixed(1)}</b>`;
+    hint();
+  }
+
+  // Reader guidance under the board: play first, then (only once a hit lands)
+  // point at the HELiX sandbox. Derived from board state so back/forward replay
+  // moves the guidance too.
+  function hint() {
+    const h = document.getElementById("bs-hint");
+    if (!h) return;
+    const hasHit = shots.some(row => row.some(s => s === 2));
+    if (over) {
+      h.innerHTML = sunkCount === SHIPS.length
+        ? `You've seen the whole loop. Head to the <a href="#matrix">score-matrix sandbox</a> to watch HELiX reason through positions like the ones you just played.`
+        : `Out of turns. Start a <b>New game</b>, or head to the <a href="#matrix">score-matrix sandbox</a> to see how HELiX would have played.`;
+    } else if (turns === 0) {
+      h.innerHTML = `Play a few turns yourself first — where would <i>you</i> look for a 5-cell ship?`;
+    } else if (!hasHit) {
+      h.innerHTML = `Keep firing. A miss is information too: it shrinks where the ships can hide.`;
+    } else {
+      h.innerHTML = `💥 You've landed a hit — this is where strategy starts. Which way does the ship run? Decide your next shot, then press <b>What would HELiX do? →</b> to compare.`;
+    }
   }
 
   // Push this board to the score-matrix sandbox so the two stay in sync.
@@ -163,7 +222,7 @@ const Battleship = (() => {
     return { shots: shots.map(r => r.slice()), turns, sunk, remaining, activeHits, over, sunkCells };
   }
 
-  return { reset, suggest, fire };
+  return { reset, suggest, fire, back, forward };
 })();
 
 /* ======================================================================
@@ -198,7 +257,7 @@ const Minesweeper = (() => {
     over = false; won = false; reward = 0; safeRevealed = 0; flagMode = false;
     updateFlagBtn();
     render();
-    log(`<span class="muted">New game — ${MINES} mines hidden on the 6×6 grid. Reveal a cell to begin.</span>`, true);
+    log(`<span class="muted">New game: ${MINES} mines hidden on the 6×6 grid. Reveal a cell to begin.</span>`, true);
     status("clear the board", "explore");
     stat();
   }
@@ -218,12 +277,12 @@ const Minesweeper = (() => {
     if (flagMode) { toggleFlag(r, c); return; }
     if (revealed[r][c] || flagged[r][c]) {
       reward -= 0.2;
-      log(`<b>${cellName(r, c)}</b> → <span class="fb">Invalid move.</span> Cell already settled. <span class="rw">[hidden reward −0.2]</span>`);
+      log(`<b>${cellName(r, c)}</b> → <span class="fb">Invalid move.</span> Cell already settled. <span class="rw">[reward −0.2]</span>`);
       render(); stat(); return;
     }
     if (mine[r][c]) {
       revealed[r][c] = true; over = true;
-      log(`<b>${cellName(r, c)}</b> → <span class="fb">BOOM — a mine.</span> Game over. Hidden reward <span class="rw">${reward.toFixed(1)}</span>.`);
+      log(`<b>${cellName(r, c)}</b> → <span class="fb">BOOM, a mine.</span> Game over. Reward <span class="rw">${reward.toFixed(1)}</span>.`);
       status("hit a mine 💥", "explore");
       revealMines(); render(); stat(); return;
     }
@@ -231,11 +290,11 @@ const Minesweeper = (() => {
     cascade(r, c);
     const gained = safeRevealed - before;
     const n = adj[r][c];
-    const clue = n === 0 ? `It's blank — ${gained} cells opened up automatically.` : `${n} mine${n > 1 ? "s" : ""} touch this cell.`;
-    log(`<b>${cellName(r, c)}</b> → <span class="fb">Safe.</span> ${clue} <span class="rw">[hidden reward +${(gained * 0.2).toFixed(1)}]</span>`);
+    const clue = n === 0 ? `It's blank: ${gained} cells opened up automatically.` : `${n} mine${n > 1 ? "s" : ""} touch this cell.`;
+    log(`<b>${cellName(r, c)}</b> → <span class="fb">Safe.</span> ${clue} <span class="rw">[reward +${(gained * 0.2).toFixed(1)}]</span>`);
     if (safeRevealed === N * N - MINES) {
       over = true; won = true; reward += 1.0;
-      log(`<span class="fb">Board cleared!</span> Every safe cell revealed. Final hidden reward <span class="rw">${reward.toFixed(1)}</span>.`);
+      log(`<span class="fb">Board cleared!</span> Every safe cell revealed. Final reward <span class="rw">${reward.toFixed(1)}</span>.`);
       status("solved 🎉", "exploit");
     }
     render(); stat();
@@ -285,7 +344,7 @@ const Minesweeper = (() => {
   function status(txt, cls) { const s = document.getElementById("ms-status"); s.textContent = txt; s.className = "pill " + cls; }
   function stat() {
     document.getElementById("ms-stat").innerHTML =
-      `Safe revealed: <b>${safeRevealed}/${N * N - MINES}</b> · <span class="muted">hidden reward</span> <b>${reward.toFixed(1)}</b>`;
+      `Safe revealed: <b>${safeRevealed}/${N * N - MINES}</b> · <span class="muted">reward</span> <b>${reward.toFixed(1)}</b>`;
   }
   function updateFlagBtn() {
     document.getElementById("ms-flag").textContent = `🚩 Flag mode: ${flagMode ? "on" : "off"}`;
@@ -299,17 +358,19 @@ const Minesweeper = (() => {
    SCORE-MATRIX SANDBOX  (the HELiX decision rule, made visible)
 
    The "LLM" is a transparent heuristic:
-   - Each hypothesis claims a TARGET cell + a region/line on the board.
-   - R(hypothesis, action) scores how well the action aligns with that
-     hypothesis's intent (1.0 for the hypothesis's own target, decaying
-     with distance / off-line). The diagonal is ~1.0 by construction,
-     mirroring the paper.
+   - Each hypothesis holds a hidden BELIEF distribution over open squares
+     (a decaying ray, a peaked blob, a flat plateau...) and proposes a top
+     square as its candidate action.
+   - R(hypothesis, action) = the hypothesis's belief that a ship occupies
+     that square. A sharp hypothesis rates its own action ~1.0; a fuzzy
+     one spreads the SAME value across its whole region — its own proposed
+     action is not special.
    - Stage machine: sample -> fill matrix -> row argmaxes ->
      consensus? exploit : (eliminate + tie-break w/ ref policy) explore.
    ====================================================================== */
 const ScoreMatrix = (() => {
   let board;          // {shots[][], turns}  (1 miss, 2 hit, 0 none)
-  let hyps = [];      // [{text, target:[r,c], line:[[r,c]...], color, permissive?}]
+  let hyps = [];      // [{text, belief:{cellName:prob}, target:[r,c], color, permissive?}]
   let actions = [];   // [{name, rc:[r,c], ref:bool}]
   let S = [];         // raw score matrix [h][a]
   let stage = 0;      // 0 none, 1 sampled, 2 filled, 3 argmax, 4(=rescore|decide), 5 decide
@@ -382,6 +443,13 @@ const ScoreMatrix = (() => {
       }
       return b;
     }
+    // a flat plateau: every open square within `radius` (Manhattan) of the centre gets
+    // the SAME value — a fuzzy hypothesis with no favourite square inside its region
+    function plateau(cr, cc, radius, val) {
+      const b = {};
+      for (const [r, c] of open) if (Math.abs(r - cr) + Math.abs(c - cc) <= radius) b[cellName(r, c)] = rnd(val);
+      return b;
+    }
     // a flat belief: the ship could be anywhere still open
     const flat = (val) => { const b = {}; for (const [r, c] of open) b[cellName(r, c)] = val; return b; };
     const maxMerge = (...bs) => { const b = {}; for (const bb of bs) for (const k in bb) b[k] = Math.max(b[k] || 0, bb[k]); return b; };
@@ -390,7 +458,12 @@ const ScoreMatrix = (() => {
     // is the candidate-action column the hypothesis "proposes". scoreOf just looks up belief.
     function addHyp(text, belief, target, opts) {
       const nm = cellName(target[0], target[1]);
-      if (belief[nm] === undefined) belief[nm] = 1.0;     // guarantee the proposed cell is scored
+      if (belief[nm] === undefined) {
+        // fallback only: proposing an action never makes a hypothesis MORE confident
+        // in that square than its own belief — score it at the belief's current top
+        const vals = Object.values(belief);
+        belief[nm] = vals.length ? Math.max(...vals) : 1.0;
+      }
       hyps.push({ text, belief, target, permissive: !!(opts && opts.permissive) });
       addAction(target);
     }
@@ -418,14 +491,14 @@ const ScoreMatrix = (() => {
             const er = first[0] + dr, ec = first[1] + dc;
             if (isOpen(er, ec)) { belief = maxMerge(belief, ray(er, ec, dr, dc, 1.0, 0.55)); if (!target) target = [er, ec]; }
           });
-          if (target) { addHyp(`${cap(cx.phrase)}. This hit could be a ship running <b>${dir}</b> — try <b>${cellName(target[0], target[1])}</b>.`, belief, target); openEnds.push({ e: target }); }
+          if (target) { addHyp(`${cap(cx.phrase)}. This hit could be a ship running <b>${dir}</b>: try <b>${cellName(target[0], target[1])}</b>.`, belief, target); openEnds.push({ e: target }); }
         });
       }
 
       // forced single extension -> a SECOND confirming hypothesis on the same square -> consensus
       if (hits.length >= 2 && openEnds.length === 1) {
         const e = openEnds[0].e;
-        addHyp(`Counting the ${cx.sl} hits, a ${cx.minRem}-cell ship isn't finished — <b>${cellName(e[0], e[1])}</b> is the only square that completes it.`,
+        addHyp(`Counting the ${cx.sl} hits, a ${cx.minRem}-cell ship isn't finished; <b>${cellName(e[0], e[1])}</b> is the only square that completes it.`,
           blob(e[0], e[1], 1.0, 0.45), e);
       }
     }
@@ -436,18 +509,19 @@ const ScoreMatrix = (() => {
     while (hyps.length < 2) {
       const t = freeOpen()[0];
       if (!t) break;
-      addHyp(`Unexplored area large enough for a ${cx.minRem}-cell ship — one may be hiding near <b>${cellName(t[0], t[1])}</b>.`, blob(t[0], t[1], 1.0, 0.6), t);
+      addHyp(`Unexplored area large enough for a ${cx.minRem}-cell ship: one may be hiding near <b>${cellName(t[0], t[1])}</b>.`, blob(t[0], t[1], 1.0, 0.6), t);
     }
 
     // ---- always reach 3 hypotheses by adding ONE that SPREADS its belief ----
     // On a forced-consensus board it's a FLAT guess (equal odds on every open square): its
     // argmax is *every* action, so it still rates the consensus cell top -> consensus survives.
-    // Otherwise it's a broad blob — it adds off-diagonal variation and is the row π_ref
-    // re-scoring demotes (its belief leaks onto the random reference cells).
+    // Otherwise it's a flat plateau — EQUAL belief on every square in its region (its own
+    // proposed square is not special), and it's the row π_ref re-scoring demotes
+    // (its belief leaks onto the random reference cells).
     if (hyps.length < 3 && open.length) {
       if (forced) {
         const t = freeOpen()[0] || open[0];
-        addHyp(`Honestly no idea which ship or exactly where — every open square looks about equally likely.`, flat(0.3), t);
+        addHyp(`Honestly no idea which ship or exactly where: every open square looks about equally likely.`, flat(0.3), t);
         // H1 & H2 both proposed the same forced square, so we'd only have 2 action columns.
         // Sample a 3rd random square (distinct from the others) so the matrix has three actions;
         // its column is scored straight from each hypothesis's hidden belief dict. Prefer a
@@ -460,7 +534,7 @@ const ScoreMatrix = (() => {
       } else {
         const far = freeOpen().filter(([r, c]) => !hits.length || hits.every(h => Math.abs(h[0] - r) + Math.abs(h[1] - c) >= 3));
         const t = far[0] || freeOpen()[0];
-        if (t) addHyp(`A separate unsunk ship might be sitting around <b>${cellName(t[0], t[1])}</b> — a fuzzy guess over a wide area.`, blob(t[0], t[1], 1.0, 0.82), t);
+        if (t) addHyp(`A separate unsunk ship might be sitting around <b>${cellName(t[0], t[1])}</b>: a fuzzy guess over a wide area.`, plateau(t[0], t[1], 3, 0.5), t);
       }
     }
 
@@ -561,7 +635,7 @@ const ScoreMatrix = (() => {
     }
     host.appendChild(wrap);
     const note = document.getElementById("sm-boardnote");
-    if (note) note.innerHTML = `Same board as <i>Play the environments</i> above — click any cell to fire. <span style="color:var(--clay)">X</span> = hit, gray = miss.`
+    if (note) note.innerHTML = `Same board as the game above. Click any cell to fire. <span style="color:var(--clay)">X</span> = hit, gray = miss.`
       + (stage >= 1 ? ` Outlined cells are each hypothesis's proposed action, numbered by hypothesis.` : ``)
       + (decision ? ` <b style="color:var(--clay)">◎ = HELiX's chosen shot.</b>` : ``);
   }
@@ -644,7 +718,7 @@ const ScoreMatrix = (() => {
     if (adv) {
       host.insertAdjacentHTML("beforeend",
         `<p class="hypo-note" style="margin-top:8px;">Now showing <b>advantages</b> = score − bₕ, applied to the <b>real action columns only</b>.
-        bₕ is each hypothesis's average belief on the random <span style="font-style:italic">π_ref</span> columns (dashed) — those columns
+        bₕ is each hypothesis's average belief on the random <span style="font-style:italic">π_ref</span> columns (dashed); those columns
         keep their <i>raw</i> belief (no subtraction), since they're what bₕ averages. Spread-out rows shrink toward 0; a
         <em>concentrated</em> hypothesis keeps a high advantage. <span style="font-style:italic">All values shown to 2 decimals.</span><br>${legend}</p>`);
     } else if (stage >= 3) {
@@ -685,9 +759,10 @@ const ScoreMatrix = (() => {
   }
 
   // Most-optimistic action: the highest score over all (hypothesis, non-random
-  // action) cells. When several cells tie at the top — which is the common case,
-  // since each hypothesis rates its own favorite ~1.0 — HELiX breaks the tie at
-  // RANDOM. Returns {h, a, score, tie, nTie} where nTie = # of tied top actions.
+  // action) cells. When several cells tie at the top — common, since SHARP
+  // hypotheses each rate their own favorite ~1.0 (fuzzy plateaus sit lower and
+  // rarely join the tie) — HELiX breaks the tie at RANDOM.
+  // Returns {h, a, score, tie, nTie} where nTie = # of tied top actions.
   function twoTier(M) {
     let best = -Infinity;
     M.forEach((row) => actions.forEach((a, j) => { if (!a.ref && row[j] > best + 1e-9) best = row[j]; }));
@@ -736,10 +811,10 @@ const ScoreMatrix = (() => {
     if (decision.type === "exploit") {
       host.className = "decision show-exploit";
       const pirefNote = usePiref
-        ? ` <span class="hypo-note">(π_ref re-scoring isn't needed here — it only changes the explore step, and there's already consensus.)</span>`
+        ? ` <span class="hypo-note">(π_ref re-scoring isn't needed here; it only changes the explore step, and there's already consensus.)</span>`
         : "";
       host.innerHTML = `<span class="pill exploit">EXPLOIT · consensus</span><br><br>
-        Every hypothesis's row-argmax shares the action <b>${a.name}</b> — the intersection is non-empty.
+        Every hypothesis's row-argmax shares the action <b>${a.name}</b>: the intersection is non-empty.
         By the minimax ⇒ common-optimum lemma, it is simultaneously best for <i>all</i> surviving
         hypotheses, so HELiX commits without further exploration. <b>Fire ${a.name}.</b>${pirefNote}`;
     } else if (!decision.piref) {
@@ -747,10 +822,10 @@ const ScoreMatrix = (() => {
       const nm = idxs => idxs.map(j => actions[j].name).join(", ");
       const pool = decision.tieActions;
       const pick = pool.length > 1
-        ? `The top score (${decision.score.toFixed(2)}) is a tie, so the action is a <b>random&#8209;tie&#8209;break(${nm(pool)})</b> — this turn, <b>${a.name}</b>.`
+        ? `The top score (${decision.score.toFixed(2)}) is a tie, so the action is a <b>random&#8209;tie&#8209;break(${nm(pool)})</b>; this turn, <b>${a.name}</b>.`
         : `The single most optimistic action is <b>${a.name}</b> (under H${decision.hypIdx + 1}).`;
       host.innerHTML = `<span class="pill explore">EXPLORE · no consensus</span><br><br>
-        The row-argmaxes don't share an action — the hypotheses disagree, so core HELiX <i>explores</i>.
+        The row-argmaxes don't share an action: the hypotheses disagree, so core HELiX <i>explores</i>.
         ${pick} <b>Fire ${a.name} to gather information.</b>
         <span class="hypo-note">Turn on <b>π_ref re-scoring</b> to see the optional advantage tie-breaker.</span>`;
     } else {
@@ -762,12 +837,12 @@ const ScoreMatrix = (() => {
       const rawPool = decision.rawTie, refPool = decision.refTie;
       const narrowed = refPool.length < rawPool.length;
       const rawLine = rawPool.length > 1
-        ? `the top raw score ties, so the pick is <b>random&#8209;tie&#8209;break(${nm(rawPool)})</b> — this turn <b>${raw.name}</b>.`
+        ? `the top raw score ties, so the pick is <b>random&#8209;tie&#8209;break(${nm(rawPool)})</b>; this turn <b>${raw.name}</b>.`
         : `the most optimistic action is <b>${raw.name}</b>.`;
       const refLine = !narrowed
-        ? `the tie-break pool is unchanged here, though the spread-out rows still flatten — <b>random&#8209;tie&#8209;break(${nm(refPool)})</b>, this turn <b>${a.name}</b>.`
+        ? `the tie-break pool is unchanged here, though the spread-out rows still flatten: <b>random&#8209;tie&#8209;break(${nm(refPool)})</b>, this turn <b>${a.name}</b>.`
         : refPool.length > 1
-          ? `the spread-out hypotheses (like <b>H${spreadIdx + 1}</b>) leak probability onto those random cells and drop out, shrinking the pick to <b>random&#8209;tie&#8209;break(${nm(refPool)})</b> — this turn <b>${a.name}</b>.`
+          ? `the spread-out hypotheses (like <b>H${spreadIdx + 1}</b>) leak probability onto those random cells and drop out, shrinking the pick to <b>random&#8209;tie&#8209;break(${nm(refPool)})</b>; this turn <b>${a.name}</b>.`
           : `the spread-out hypotheses drop out, leaving only <b>${a.name}</b> with a top advantage.`;
       host.innerHTML = `<span class="pill explore">EXPLORE · no consensus</span><br><br>
         <b>Without π_ref</b> (core HELiX): ${rawLine}<br>
@@ -793,12 +868,12 @@ const ScoreMatrix = (() => {
   function narration() {
     if (board && board.over) return `🏁 <b>Game over.</b> Press <b>New game</b> to play another round.`;
     switch (stepKind(stage)) {
-      case "none": return `This is your <b>Battleship board</b> from above — fire a shot on either board and both update. Press <b>Sample hypotheses</b> to see what HELiX would do here.`;
-      case "sample": return `<b>Stage 1 — Sample.</b> The LLM proposes feedback-consistent hypotheses, each with a best action${usePiref ? `, plus a few <i>optional</i> random π_ref actions (dashed) as a baseline` : ``}. Next: score every action under every hypothesis.`;
-      case "build": return `<b>Stage 2 — Build the score matrix.</b> $R_{\\text{LLM}}(\\eta, a)$ rates each action under each hypothesis. An action proposed <i>for</i> a hypothesis scores high <i>under</i> it.`;
-      case "argmax": return `<b>Stage 3 — Row argmaxes.</b> Mark each hypothesis's highest-scoring action. If they share one → exploit; if not → explore.`;
-      case "rescore": return `<b>Stage 4 — Re-score against π_ref (optional).</b> Subtract each hypothesis's baseline $b_h$ (its average belief on the random cells). Raw scores become <i>advantages</i> — watch the spread-out rows shrink toward 0.`;
-      case "decide": return `<b>Stage ${stage} — Decide.</b> Read the verdict below, then let HELiX take the shot — it fires on the board and you continue from the new position.`;
+      case "none": return `This is your <b>Battleship board</b> from above: fire a shot on either board and both update. Press <b>Sample hypotheses</b> to see what HELiX would do here.`;
+      case "sample": return `<b>Stage 1: Sample.</b> The LLM proposes feedback-consistent hypotheses, each with a best action${usePiref ? `, plus a few <i>optional</i> random π_ref actions (dashed) as a baseline` : ``}. Next: score every action under every hypothesis.`;
+      case "build": return `<b>Stage 2: Build the score matrix.</b> $R_{\\text{LLM}}(\\eta, a)$ rates each action under each hypothesis; here, the hypothesis's belief that a ship occupies that square. A <i>sharp</i> hypothesis rates its own pick ~1.0; a <i>fuzzy</i> one spreads equal belief over its whole region, so even its own proposed action scores modestly.`;
+      case "argmax": return `<b>Stage 3: Row argmaxes.</b> Mark each hypothesis's highest-scoring action. If they share one → exploit; if not → explore.`;
+      case "rescore": return `<b>Stage 4: Re-score against π_ref (optional).</b> Subtract each hypothesis's baseline $b_h$ (its average belief on the random cells). Raw scores become <i>advantages</i>; watch the spread-out rows shrink toward 0.`;
+      case "decide": return `<b>Stage ${stage}: Decide.</b> Read the verdict below, then let HELiX take the shot; it fires on the board and you continue from the new position.`;
     }
   }
   function btnLabel() {
@@ -893,6 +968,9 @@ window.addEventListener("DOMContentLoaded", () => {
   Battleship.reset();
   document.getElementById("bs-reset").onclick = Battleship.reset;
   document.getElementById("bs-helix").onclick = Battleship.suggest;
+  // Back/forward arrows (one pair per widget; both control the shared history)
+  document.querySelectorAll(".bs-back").forEach(b => b.onclick = Battleship.back);
+  document.querySelectorAll(".bs-fwd").forEach(b => b.onclick = Battleship.forward);
 
   // Minesweeper — only if its widget is present (it may be commented out)
   if (document.getElementById("ms-board")) {

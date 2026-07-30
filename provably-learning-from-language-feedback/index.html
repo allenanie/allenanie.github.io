@@ -405,19 +405,28 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 <!-- ====================== ABSTRACT ====================== -->
 <section id="abstract">
   <p class="lede">
-    LLM agents increasingly learn not from numerical rewards, but from <strong>language</strong>:
-    a critique, a hint, an explanation of what went wrong. We give this setting a precise
-    mathematical footing, introduce a complexity measure — the <em class="term">transfer eluder dimension</em> —
-    that says <em>when</em> language feedback makes learning easier, and derive a provably
-    no-regret algorithm, <strong>HELiX</strong>, that turns the theory into an inference-time strategy
-    for real LLMs.
+    Humans learn from language. We read a textbook to learn calculus.
+    We follow a professor's explanations in lecture. We get an exam score at the very end, if it arrives at all.
+    RL algorithms learn from numerical rewards: a binary true or false
+    (<a href="https://arxiv.org/abs/2501.12948" target="_blank" rel="noopener">RLVR</a>),
+    a continuous score
+    (<a href="https://arxiv.org/abs/1707.06347" target="_blank" rel="noopener">PPO</a>,
+    <a href="https://arxiv.org/abs/2402.03300" target="_blank" rel="noopener">GRPO</a>),
+    or a preference ranking
+    (<a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="noopener">DPO</a>).
+    But an LLM agent that continuously learns from the world will mostly receive signals like the professor's
+    explanation or in a conversation with a programmer: a critique, a correction, or a suggestion. None of these can be easily <em>verified</em> as true or false,
+    or rated on a scale.
+    We ask the question: is there an RL algorithm that can directly learn from this type of natural language feedback?
+    We give this setting a precise mathematical grounding.
   </p>
   <div class="callout slate">
-    <span class="k">The one-sentence version</span>
-    Good language feedback can make learning <strong>exponentially faster</strong> than learning from
-    reward alone — and there is a principled way for an LLM to exploit it, by sampling hypotheses,
-    cross-scoring them against candidate actions, and acting on consensus when it exists and on
-    optimism when it does not.
+    <span class="k">What we show</span>
+    We introduce a new complexity measure, the <em class="term">transfer eluder dimension</em>,
+    which describes <em>how</em> language feedback shapes the difficulty of a decision-making problem
+    and <em>when</em> it makes the problem easy.
+    We then derive <strong>HELiX</strong>, a provably no-regret algorithm that learns from language feedback
+    alone, with regret guarantees that scale with this measure.
   </div>
 </section>
 
@@ -426,72 +435,48 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   <h2><span class="num">01</span>Why language feedback is different</h2>
 
   <p>
-    Classic sequential decision-making — bandits, reinforcement learning — runs on a thin signal:
-    a scalar reward. You take an action, you get a number, you nudge your policy. But the world
-    rarely talks to us in numbers. A reviewer doesn't hand back a $0.7$; they say
-    <em>"the summary is mostly accurate, but it overlooks the main character's motivation."</em>
+    Consider a coin that talks. The coin has an unknown head-probability $\eta \in [0, 1]$.
+    Each round you guess heads or tails, and the reward is $1$ if you guessed the toss.
+    Say you guess heads and the coin lands tails. If the coin only says "miss," you don't learn much about the coin's head probability. But let the coin speak a full sentence:
+    <em>"miss, your guess was too optimistic; the coin seems tail-heavy."</em>
+    That single sentence cuts the hypothesis space in half: every $\eta > 0.5$ is gone. Even better,
+    this tells you what to do next: guess tails. One toss with binary feedback teaches you almost
+    nothing; one toss with a sentence hands you the optimal action. 
+  </p>
+
+  <!-- <figure style="max-width: 60%; margin: 32px auto;">
+    <img src="assets/talking_coin.png" alt="Two panels: a silent coin toss versus a talking coin that explains why the guess was wrong" />
+  </figure> -->
+
+  <p>
+    When researchers incorporate language feedback into learning algorithms, they have historically relied on two straightforward strategies.
+    The first: translate the feedback into a reward number, then run ordinary RL on the reward.
+    Compressing a sentence into a scalar can only
+    lose information. Learning under a proxy reward opens up a can of worms on generalizability and misspecification. The
+    second strategy is smarter
+    (<a href="https://arxiv.org/abs/1711.00482" target="_blank" rel="noopener">Andreas et al., 2017</a>):
+    keep the numerical reward as the primary signal, and treat language as extra information on the
+    side. That helps, but it still requires an explicit numerical reward to be observed by the learning algorithm.
   </p>
 
   <p>
-    That sentence does something a reward cannot: it tells you <strong>what</strong> is wrong and
-    <strong>where</strong> to look. A scalar of $0.7$ leaves you guessing across the whole action
-    space; the critique points straight at a fix. This is the premise of
-    <strong>Learning from Language Feedback (LLF)</strong> — a paradigm introduced as an interactive
-    benchmark by <a href="https://arxiv.org/abs/2312.06853" target="_blank" rel="noopener">Cheng et al.
-    (2023)</a><sup class="refmark"><a href="#ref-llf">1</a></sup>: the agent never sees the reward at
-    all. It must maximize a hidden reward using only natural-language feedback.
+    In our setup, the agent repeatedly picks an action, and the environment responds
+    with a sentence. A reward exists: it is what we measure the agent's performance on, but the agent never sees it.
+    Everything the agent will ever know about its performance on the task comes from language.
   </p>
 
-  <div class="callout">
-    <span class="k">The setup in one breath</span>
-    At each step the agent picks an action $A_t$, the environment returns language feedback
-    $O_t$, and a reward $R_t = r^*(A_t)$ is silently incurred but <strong>never revealed</strong>.
-    Regret is measured against the best action — so the agent has to <em>decode intent from words</em>,
-    not from scores.
-  </div>
-
-  <h3>A coin that talks</h3>
-  <p>
-    Here is the smallest example that shows why feedback is more than a disguised reward.
-    A coin has unknown head-probability $\eta \in \{0,\,0.1,\,0.5\}$. You guess $a \in \{H, T\}$.
-    The environment says "match" or "miss"; the hidden reward is $1$ if you were right.
-  </p>
-  <p>
-    With binary feedback, "match/miss" carries exactly one bit — the same as the reward.
-    But enrich it to <em>"miss — your guess was too optimistic; the coin seems tail-heavy"</em>
-    and suddenly a single observation can rule out whole families of hypotheses. The information
-    isn't in the reward; it's in the <em>structure of the sentence</em>. The question this paper
-    answers is: how do we <em>quantify</em> that extra information, and how do we
-    <em>provably use</em> it?
+  <p>However, this setup is very different from learning from numerical reward. Language feedback might not directly map to a reward number, but if it doesn't contain information about the optimal action, learning cannot happen.
+    Someone recently
+    <a href="https://x.com/waterloo_intern/status/2073171123542573231" target="_blank" rel="noopener">distilled
+    a model on summarized reasoning traces</a> and got a model that only responds with "Egypt won" to every
+    question. Now imagine
+    an environment that only has feedback "Egypt won," regardless of what action a policy takes. No algorithm can learn here, no matter how clever.
   </p>
 
-  <h3>Feedback shapes difficulty — exponentially</h3>
   <p>
-    Consider building a hidden $L$-step reasoning chain, where each step is drawn from a set $\mathcal{S}$
-    of possibilities and the reward is $1$ only if every step is correct. The <em>same task</em> becomes
-    wildly easier or harder depending on what the feedback tells you:
-  </p>
-
-  <div class="tablewrap">
-  <table class="paper">
-    <thead>
-      <tr><th>Feedback type</th><th>What it tells you</th><th>Learning complexity <span class="mathhdr">$\dim_{TE}$</span></th></tr>
-    </thead>
-    <tbody>
-      <tr><td><b>Reward</b></td><td>whether all steps are correct<span class="note">1-bit binary reward</span></td><td class="cx">$O(|\mathcal{S}|^{L})$</td></tr>
-      <tr><td><b>Explanation</b></td><td>index of the first wrong step</td><td class="cx">$O(|\mathcal{S}|\,L)$</td></tr>
-      <tr><td><b>Suggestion</b></td><td>correction for the first mistake<span class="note">online teacher correction</span></td><td class="cx">$O(L)$</td></tr>
-      <tr><td><b>Demonstration</b></td><td>all the correct steps<span class="note">online teacher demonstration</span></td><td class="cx">$O(1)$</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <p>
-    Reward-only learning is <strong>exponential</strong> in the chain length $L$ — you essentially
-    enumerate every sequence. Feedback that merely localizes the first error collapses this to
-    a product; a constructive correction removes the dependence on $|\mathcal{S}|$ entirely; and a
-    demonstration solves it in one shot. The richer the language, the flatter the problem.
-    This is the engine of the whole paper.
+    So the hardness of learning from language is set by how much the feedback reveals about the
+    reward: the talking coin and the "Egypt won" environment are the two ends of a spectrum. The next
+    section builds the measure where a problem sits on that spectrum.
   </p>
 </section>
 
@@ -500,8 +485,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   <h2><span class="num">02</span>The framework: hypotheses, verifiers, and a new dimension</h2>
 
   <p>
-    To make "information in feedback" rigorous, the paper introduces three objects. Each one
-    replaces a familiar piece of the bandit machinery with a language-native analogue.
+    To make "learning with natural language feedback" rigorous, we extend the interactive learning setup to incorporate natural language. We treat this as an exercise of: what is the minimal change we can make to the framework to make it work with language? The answer is a hypothesis verifier.
   </p>
 
   <figure>
@@ -509,7 +493,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     <figcaption>
       <b>The LLF interaction loop.</b> A hidden hypothesis $\eta^*$ (e.g. the true game rules and board)
       induces both a reward function $r_{\eta^*}$ and a feedback function $f_{\eta^*}$. The agent only
-      sees language feedback and must drive down regret against the hidden reward.
+      sees language feedback and must drive down regret against a reward it never observes.
     </figcaption>
   </figure>
 
@@ -531,13 +515,13 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     <em>is hypothesis $\eta$ consistent with feedback $o$ on action $a$?</em> Crucially this is
     <strong>not</strong> a reward model and <strong>not</strong> a correctness oracle. It never
     certifies that $\eta$ is true — it only flags when $\eta$ has been <em>contradicted</em> by what
-    was observed. Consistent ⇒ $\ell = 0$; incompatible ⇒ a positive penalty. Feedback is assumed
+    was observed. Consistent implies $\ell = 0$; incompatible implies a positive penalty. Feedback is assumed
     <em>unbiased</em>: the true hypothesis is always among the loss-minimizers.
   </p>
 
   <h3>3 · The transfer eluder dimension</h3>
   <p>
-    The headline construct builds on the <a href="https://web.stanford.edu/~bvr/pubs/Eluder.pdf"
+    We build on the <a href="https://web.stanford.edu/~bvr/pubs/Eluder.pdf"
     target="_blank" rel="noopener">eluder dimension</a> of Russo &amp; Van Roy
     (2013)<sup class="refmark"><a href="#ref-eluder">2</a></sup> — a way to measure how many times a
     reward function can still <em>surprise</em> an optimistic learner before its value everywhere is
@@ -549,12 +533,42 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     its reward.
   </p>
 
+  <h3>The same task, four difficulties</h3>
+  <p>
+    We can now describe the complexity of a learning problem with language feedback in terms of the transfer eluder dimension. $\dim_{TE}$ changes when the feedback is more or less informative.
+    Consider constructing a hidden $L$-step solution, where each step comes from a set $\mathcal{S}$
+    and the reward is $1$ only when every step is correct:
+  </p>
+
+  <div class="tablewrap">
+  <table class="paper">
+    <thead>
+      <tr><th>Feedback type</th><th>What it tells you</th><th>Learning complexity <span class="mathhdr">$\dim_{TE}$</span></th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Reward</b></td><td>whether all steps are correct<span class="note">1-bit binary reward</span></td><td class="cx">$O(|\mathcal{S}|^{L})$</td></tr>
+      <tr><td><b>Explanation</b></td><td>index of the first wrong step</td><td class="cx">$O(|\mathcal{S}|\,L)$</td></tr>
+      <tr><td><b>Suggestion</b></td><td>correction for the first mistake<span class="note">online teacher correction</span></td><td class="cx">$O(L)$</td></tr>
+      <tr><td><b>Demonstration</b></td><td>all the correct steps<span class="note">online teacher demonstration</span></td><td class="cx">$O(1)$</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    The same task ranges from exponential to constant difficulty, and the only thing that changed is
+    what the feedback says. Reward-only learning must enumerate; feedback that locates the first
+    error decomposes the problem; a correction removes the dependence on $|\mathcal{S}|$; a
+    demonstration ends the game in one round. This spectrum is exactly what the transfer eluder
+    dimension measures.
+  </p>
+
   <div class="callout">
-    <span class="k">The central theorem (informally)</span>
-    Whenever feedback can discriminate rewards at least as well as the rewards discriminate themselves,
+    <span class="k">Transfer Eluder Dimension (informally)</span>
+    <!-- we show that if feedback can discriminate rewards, the transfer eluder dimension is no larger than the eluder dimension for the reward class H. -->
+    If feedback is informative enough to discriminate between different reward functions, where $\mathcal{R}_{\mathcal{H}} = \{ r_\eta : \eta \in \mathcal{H} \}$ is the effective reward class of $\mathcal{H}$. Then,
     $$\dim_{TE}(\mathcal{H}, \ell, \epsilon) \;\le\; \dim_{E}(\mathcal{R}_{\mathcal{H}}, \epsilon).$$
-    Learning from informative language feedback is <strong>never harder</strong> than learning from
-    reward — and, as the reasoning-chain table showed, often <strong>exponentially easier</strong>.
+    Learning from discriminative language feedback is <strong>never harder</strong> than learning from
+    reward — and, as the reasoning-chain table showed, can be <strong>exponentially easier</strong>.
   </div>
 </section>
 
@@ -585,7 +599,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   </p>
 
   <div class="theorem-wrap callout slate">
-    <span class="k">Regret guarantee</span>
+    <span class="k">Regret guarantee of HELiX</span>
     With only boundedness assumed on the verifier loss, HELiX achieves
     $$\mathrm{Regret}(T) \;=\; \widetilde{O}\!\left(T^{3/4}\,\big(\log N(\mathcal{H},\epsilon_T)\big)^{1/4}\sqrt{\dim_{TE}(\mathcal{H},\ell,\epsilon_T)}\right).$$
     The $T^{3/4}$ rate is the honest price of making <em>almost no</em> structural assumptions; with a
@@ -658,9 +672,10 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 <section id="play">
   <h2><span class="num">04</span>Play the environments</h2>
   <p>
-    HELiX is evaluated on language-feedback games where the agent never sees a reward — only words and
+    HELiX is evaluated on language-feedback games where the agent never sees a reward: only words and
     a partially-revealed map. Play them yourself to feel the information problem the agent faces. The
-    <strong>hidden reward</strong> is tracked silently and revealed in the log, exactly as in the paper.
+    <strong>reward</strong> is tracked silently and shown in the log so you can follow along; the
+    agent itself never observes it.
   </p>
 
   <!-- Battleship -->
@@ -668,7 +683,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     <h4>🚢 Battleship <span class="pill explore" id="bs-status">find the ships</span></h4>
     <p class="sub">
       Three hidden ships (lengths 5, 4, 3) on a 6×6 grid. Fire one cell per turn; you get only
-      <em>hit / miss / sunk</em> language feedback. Sink all three within 20 shots. Hidden reward:
+      <em>hit / miss / sunk</em> language feedback. Sink all three within 20 shots. Reward (never observed by the agent):
       a hit scores 0.5, sinking a ship scores 1.0.
     </p>
     <div class="widget-grid two">
@@ -686,28 +701,6 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     </div>
   </div>
 
-  <!-- Minesweeper -->
-  <!-- <div class="widget" id="ms-widget">
-    <h4>💣 Minesweeper <span class="pill explore" id="ms-status">clear the board</span></h4>
-    <p class="sub">
-      A 6×6 grid with 6 hidden mines. Reveal cells; a number is the count of adjacent mines, and a
-      blank cascades. Left-click reveals, right-click (or the Flag toggle) marks. Hidden reward:
-      +0.2 per safe reveal, +1.0 for clearing the board, −0.2 for an invalid move.
-    </p>
-    <div class="widget-grid two">
-      <div>
-        <div id="ms-board"></div>
-        <div class="controls">
-          <button class="btn ghost" id="ms-reset">New game</button>
-          <button class="btn ghost" id="ms-flag">🚩 Flag mode: off</button>
-        </div>
-        <p class="statline" id="ms-stat"></p>
-      </div>
-      <div>
-        <div class="feedlog" id="ms-log"></div>
-      </div>
-    </div>
-  </div> -->
 </section>
 
 <!-- ====================== SCORE MATRIX ====================== -->
@@ -762,7 +755,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 <section id="results">
   <h2><span class="num">06</span>Does it work?</h2>
   <p>
-    Across Wordle, Battleship, and Minesweeper, HELiX consistently beats a chain-of-thought baseline
+    Across Battleship and Minesweeper, HELiX consistently beats a chain-of-thought baseline
     and its own ablation without the consensus exploitation step. The gap is largest exactly where
     information-gathering matters most — Minesweeper — confirming that strategic exploration, not raw
     LLM cleverness, is doing the work. All runs use Claude&nbsp;3.5&nbsp;Sonnet&nbsp;(v2).
@@ -774,7 +767,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
       <img src="assets/reward_progression_minesweeper.png" alt="Minesweeper cumulative reward" style="border:1px solid var(--rule); border-radius:10px; padding:8px; background:#fff;" />
     </div>
     <figcaption>
-      <b>Cumulative hidden reward vs. interaction steps.</b> HELiX (with reference-policy re-scoring)
+      <b>Cumulative reward vs. interaction steps.</b> HELiX (with reference-policy re-scoring)
       leads throughout; shaded bands are standard error across scenarios. Removing the exploitation
       step or dropping to plain CoT both cost reward — most dramatically on Minesweeper, where careful
       exploration is essential.
@@ -860,6 +853,6 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   </div>
 </footer>
 
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

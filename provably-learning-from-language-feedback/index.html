@@ -400,8 +400,8 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
     <div class="hero-links">
       <a href="https://arxiv.org/pdf/2506.10341">📄 Read the paper</a>
       <a href="#intuition">↓ Read the intuition</a>
-      <a href="#play">🎮 Play the games</a>
-      <a href="#matrix">🔢 Build a score matrix</a>
+      <a href="#play">🎮 Play the game</a>
+      <a href="#matrix">🔢 Watch HELiX think</a>
     </div>
   </div>
 </header>
@@ -608,7 +608,7 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
   </p>
 
   <ul>
-    <li><strong>Exploit on consensus (lines 6–8).</strong> HELiX computes a minimax policy
+    <li><strong>Exploit on consensus (lines 7–8).</strong> HELiX computes a minimax policy
       $\pi_p \in \argmin_{\pi\in\Pi} \max_{\eta\in\mathcal{H}_t} \big[r_\eta(\pi_\eta) - r_\eta(\pi)\big]$.
       If the minimax regret is zero,
       $$\min_{\pi\in\Pi} \max_{\eta\in\mathcal{H}_t} \big[r_\eta(\pi_\eta) - r_\eta(\pi)\big] = 0,$$
@@ -652,13 +652,11 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 <section id="play">
   <h2><span class="num">04</span>Play the algorithm</h2>
   <p>
-    HELiX is evaluated on language-feedback games where the agent never sees a reward: only words and
-    a partially-revealed map. Before watching the algorithm, <strong>play a round yourself</strong> —
-    fire at least three or four shots and notice what each reply does to your thinking. A miss quietly
-    shrinks where ships can hide. A hit changes everything: suddenly you're weighing theories —
-    <em>which way does the ship run? how long is it?</em> — and choosing a shot to test them. That
-    little cycle of forming, testing, and discarding hypotheses is exactly what HELiX formalizes.
-    Once you land a hit, the guide under the board will point you to the algorithm.
+    HELiX incoporates natural language feedback to eliminate implausible hypotheses. We prepare a demo where you can see how the algorithm forms hypotheses and makes decisions based on the feedback. 
+    Before watching the algorithm play automatically, <strong>play a round yourself —
+    fire at least three or four shots</strong> and pay attention to what you are thinking. A miss quietly
+    reduces the number of possible locations where ships can hide. Your first hit allows you to form hypotheses about the ship's orientation and length, and choose a shot to test them. The
+    cycle of hypothesizing, testing, and discarding hypotheses is exactly what HELiX formalizes.
   </p>
 
   <!-- Battleship -->
@@ -693,9 +691,9 @@ ol.reflist .refnote { display: block; font-size: 14px; color: var(--ink-faint); 
 
 <!-- ====================== SCORE MATRIX ====================== -->
 <section id="matrix">
-  <h2><span class="num">05</span>Build a score matrix, step by step</h2>
+  <h2><span class="num">05</span>Watch HELiX think</h2>
   <p>
-    This is the heart of HELiX. The board below is the <strong>same Battleship board</strong> you played
+    The board below is the <strong>same Battleship board</strong> you played
     above — fire a shot on either one and both update. Walk through the algorithm one stage at a time and
     watch the score matrix get built and read. The "LLM" here is a transparent heuristic so you can see
     exactly why each score lands where it does — but the <em>mechanism</em> (sample → score → consensus
